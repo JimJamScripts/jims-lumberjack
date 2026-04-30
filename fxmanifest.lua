@@ -34,3 +34,6 @@ files {
     'ui/style.css',
     'ui/script.js'
 }
+server_ignore {
+    'server/debug.lua'
+}
