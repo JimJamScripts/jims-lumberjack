@@ -1,5 +1,5 @@
 -- payouts.lua
-local Company = require 'server.company'
+local Company = require 'company'
 local Payouts = {}
 
 function Payouts.payPlayer(companyId, playerId, amount)

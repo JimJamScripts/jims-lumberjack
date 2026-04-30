@@ -1,5 +1,5 @@
 -- company.lua
-local Database = require 'server.database'
+local Database = require 'database'
 local Company = {}
 
 -- Load a company by ID

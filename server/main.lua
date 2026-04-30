@@ -1,6 +1,6 @@
 -- main.lua
-local Company = require 'server.company'
-local Payouts = require 'server.payouts'
+local Company = require 'company'
+local Payouts = require 'payouts'
 
 -- Debug: create a company
 RegisterCommand("lj_create_company", function(source, args)
