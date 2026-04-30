@@ -32,5 +32,3 @@ function Company.log(companyId, type, amount)
         { companyId, type, amount }
     )
 end
-
-return Company
