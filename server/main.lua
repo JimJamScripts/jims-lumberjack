@@ -3,15 +3,10 @@
 -- Phase 1 Backend Initialization
 -- ============================================
 
--- Load Debug System
 Debug:Info("Server script loaded.")
 
--- Load Database Module
-local db = require('server.database')
-db.init()
-
--- Load Company Module
-local Company = require('server.company')
+dofile('server/database.lua')
+dofile('server/company.lua')
 
 -- ============================================
 -- Initialize Backend
