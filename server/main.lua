@@ -1,5 +1,6 @@
 -- ============================================
 -- Lumberjack Job - Server Main
+-- Phase 1 Backend Initialization
 -- ============================================
 
 -- Load Debug System
