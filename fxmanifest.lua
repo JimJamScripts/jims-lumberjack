@@ -14,6 +14,8 @@ shared_scripts {
 }
 
 client_scripts {
+    'client/cl_business.lua',
+    'client/cl_office.lua',
     'client/main.lua',
     'client/chopping.lua',
     'client/wagon.lua',
@@ -21,6 +23,7 @@ client_scripts {
 }
 
 server_scripts {
+    'server/sv_business.lua',
     '@oxmysql/lib/MySQL.lua',
     'server/database.lua',
     'server/company.lua',

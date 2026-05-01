@@ -2,6 +2,8 @@ Config = {}
 
 Config.Debug = true   -- Set to false for production
 Config.DebugLevel = 3 -- 1 = errors only, 2 = warnings, 3 = full debug
+Config.OfficeLocation = vector3(-552.12, -378.44, 83.52)
+Config.OfficeBuildTime = 60
 
 -- Logging companies players can work for
 Config.Companies = {
