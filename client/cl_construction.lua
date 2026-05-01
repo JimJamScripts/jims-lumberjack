@@ -36,3 +36,13 @@ RegisterNetEvent("construction:startFoundation", function(camp)
     DoWorkerTasks(camp)
     TriggerServerEvent("construction:startPhase", camp, 1)
 end)
+
+RegisterCommand("testimap", function(_, args)
+    local hash = tonumber(args[1])
+    if hash then
+        print("Requesting IMAP:", hash)
+        RequestImap(hash)
+    else
+        print("Invalid hash.")
+    end
+end)
