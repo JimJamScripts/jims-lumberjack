@@ -11,12 +11,19 @@ lua54 'yes'
 
 shared_scripts {
     'config.lua',
+    'shared/sh_construction.lua',
 }
 
 client_scripts {
     'client/cl_notify.lua',
     'client/cl_business.lua',
     'client/cl_office.lua',
+
+    -- Construction system
+    'client/cl_construction.lua',
+    'client/cl_phases.lua',
+
+    -- Existing client files
     'client/main.lua',
     'client/chopping.lua',
     'client/wagon.lua',
@@ -25,6 +32,12 @@ client_scripts {
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
+
+    -- Construction system
+    'server/sv_phases.lua',
+    'server/sv_construction.lua',
+
+    -- Existing server files
     'server/sv_business.lua',
     'server/database.lua',
     'server/company.lua',
@@ -39,6 +52,7 @@ files {
     'ui/style.css',
     'ui/script.js'
 }
+
 server_ignore {
     'server/debug.lua'
 }
