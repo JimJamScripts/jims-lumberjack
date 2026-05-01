@@ -1,3 +1,5 @@
+print("^1[DEBUG] sv_business.lua loaded")
+
 local Businesses = {}
 
 -- Load all businesses on resource start

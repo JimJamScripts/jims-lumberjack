@@ -23,8 +23,8 @@ client_scripts {
 }
 
 server_scripts {
-    'server/sv_business.lua',
     '@oxmysql/lib/MySQL.lua',
+    'server/sv_business.lua',
     'server/database.lua',
     'server/company.lua',
     'server/payouts.lua',
