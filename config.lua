@@ -4,54 +4,100 @@ Config.Debug = true   -- Set to false for production
 Config.DebugLevel = 3 -- 1 = errors only, 2 = warnings, 3 = full debug
 Config.OfficeLocation = vector3(-1400.58, -205.13, 101.91)
 Config.OfficeBuildTime = 60
-
--- Logging companies players can work for
-Config.Companies = {
-    {
-        id = "jims_logging",
-        name = "Jim's Logging Co.",
-        payoutMultiplier = 1.0
-    },
-    {
-        id = "ridgewood_logging",
-        name = "Ridgewood Timberworks",
-        payoutMultiplier = 1.15
-    },
-    {
-        id = "ironwood_mill",
-        name = "Ironwood Mill & Co.",
-        payoutMultiplier = 1.25
-    }
-}
-
 -- Tree locations (we'll expand this later)
 Config.Trees = {
     { x = -500.0, y = 1200.0, z = 100.0 },
     { x = -520.0, y = 1180.0, z = 102.0 },
 }
-
 -- Base payout per log
 Config.BasePayout = 4.0
 
--- Construction camp data
-Config.Camps = {
-    lumber_1 = {
+Config.CampId = "lumber_1"
+Config.CampName = "Jim's Logging Co."
 
-        -- ⭐ Invisible interaction point for the ledger
-        ledgerPrompt = vector3(-1400.58, -205.13, 101.91),
+Config.Construction = {
+    phase1 = 50,   -- Foundation + partial walls
+    phase2 = 75,   -- Full frame + roof frame
+    phase3 = 100   -- Office complete
+}
 
-        -- Office foundation location
-        office = vector3(-1400.58, -205.13, 101.91),
+Config.Stables = {
+    phase1 = 40,   -- Small barn
+    phase2 = 60,   -- Half fencing
+    phase3 = 90    -- Full barn + fenced area
+}
 
-        workerPoints = {
-            taskA = {
-                vector3(-1398.2, -212.1, 102.3),
-                vector3(-1396.4, -215.0, 102.2)
-            },
-            taskB = {
-                vector3(-1402.5, -217.3, 102.1),
-                vector3(-1393.9, -209.4, 102.4)
-            }
-        }
+Config.WorkerSlots = {
+    baseSlots = 4,
+    slotsPerTent = 2,
+    maxTents = 2,
+    tentModel = "p_tent_leanto01x",
+    upgradeCost = 50
+}
+
+Config.Wagons = {
+    lumber = {
+        type = "lumber",
+        model = "cart01",
+        name = "Lumber Wagon",
+        price = 50,
+        capacity = 10
+    },
+    sap = {
+        type = "sap",
+        model = "cart02",
+        name = "Sap Wagon",
+        price = 75,
+        capacity = 10
+    },
+    cargo = {
+        type = "cargo",
+        model = "cart03",
+        name = "Cargo Wagon",
+        price = 120,
+        capacity = 5000
     }
 }
+
+Config.Storages = {
+    hardwood = {
+        capacity = 2000,
+        model = "p_woodpile01x"
+    },
+    plank = {
+        capacity = 2000,
+        model = "p_woodpile02x"
+    },
+    sap = {
+        capacity = 2000,
+        model = "p_barrel03x"
+    }
+}
+
+Config.BulkStorage = {
+    logs = {
+        model = "p_woodpile03x",
+        location = vector4(0.0, 0.0, 0.0, 0.0) -- set later
+    },
+    sap = {
+        model = "p_water_tower01x",
+        location = vector4(0.0, 0.0, 0.0, 0.0) -- set later
+    }
+}
+
+Config.ShopFront = {
+    model = "p_storefront01x",
+    location = vector4(0.0, 0.0, 0.0, 0.0),
+    baseCapacity = 500
+    basecost = 100
+    baseUpgradeCost = 50
+    slotsPerUpgrade = 100
+}
+
+Config.Ranks = {
+    [1] = "Lumberjack",
+    [2] = "Senior Lumberjack",
+    [3] = "Foreman",
+    [4] = "Owner"
+}
+
