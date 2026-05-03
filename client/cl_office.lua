@@ -29,6 +29,21 @@ RegisterNetEvent("construction:startFoundation", function(camp)
     end)
 end)
 
+CreateThread(function()
+    local pos = Config.Camps["lumber_1"].ledgerPrompt
+
+    -- Create blip
+    local blip = N_0x554d9d53f696d002(1664425300, pos.x, pos.y, pos.z)
+
+    -- Axes icon (woodcutting)
+    SetBlipSprite(blip, -1230993421, true)  -- axes icon
+    SetBlipScale(blip, 0.2)
+
+    -- Blip name
+    local label = CreateVarString(10, "LITERAL_STRING", "Ledger")
+    Citizen.InvokeNative(0x9CB1A1623062F402, blip, label)
+end)
+
 -- =========================================================
 --  Main Loop: Invisible Ledger Interaction
 -- =========================================================
