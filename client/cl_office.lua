@@ -38,12 +38,15 @@ CreateThread(function()
 
         local ped = PlayerPedId()
         local coords = GetEntityCoords(ped)
+
+        -- Your new single interaction point
         local ledgerPos = Config.Camps[campId].ledgerPrompt
+
+        -- Distance check
         local dist = #(coords - ledgerPos)
 
         -- Only owners can interact
         if dist < 2.0 and LumberBusiness.IsOwner() then
-            -- No text, no sign, no prompt — just invisible interaction
             if IsControlJustPressed(0, 0xCEFD9220) then
                 TriggerEvent("lumber:openCompanyLedger", campId)
             end
