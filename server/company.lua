@@ -56,3 +56,34 @@ function Company.log(campId, type, amount)
         { campId, type, amount }
     )
 end
+
+-- =========================================================
+--  Handle Ledger Opening (Triggered by client)
+-- =========================================================
+RegisterNetEvent("lumber:openCompanyLedger", function(campId)
+    local src = source
+    campId = campId or "lumber_1"
+
+    local camp = Company.get(campId)
+    if not camp then
+        print(("^1[Lumber Ledger] No camp row found for '%s'^7"):format(campId))
+        TriggerClientEvent("chat:addMessage", src, {
+            args = { "Lumber", ("No ledger data found for %s."):format(campId) }
+        })
+        return
+    end
+
+    print(("[Lumber Ledger] %s opened ledger for %s (funds: %d)")
+        :format(GetPlayerName(src) or "unknown", campId, camp.funds or 0))
+
+    -- Temporary visible feedback
+    TriggerClientEvent("chat:addMessage", src, {
+        args = {
+            "Lumber",
+            ("Ledger for %s | Funds: %d | Phase: %s")
+                :format(campId, camp.funds or 0, camp.phase or "N/A")
+        }
+    })
+end)
+
+return Company
