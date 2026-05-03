@@ -1,12 +1,22 @@
 print("SERVER MAIN LOADED")
+
 local Camp = {}
 local json = json or require("json") -- adjust if needed
 
--- Simple DB helpers (replace with your wrapper)
-local function fetchAll(query, params, cb) exports.ghmattimysql:execute(query, params, cb) end
-local function fetchScalar(query, params, cb) exports.ghmattimysql:scalar(query, params, cb) end
-local function execute(query, params, cb) exports.ghmattimysql:execute(query, params, cb) end
+-- Simple DB helpers (replace with your wrapper if needed)
+local function fetchAll(query, params, cb)
+    exports.oxmysql:execute(query, params, cb)
+end
 
+local function fetchScalar(query, params, cb)
+    exports.oxmysql:scalar(query, params, cb)
+end
+
+local function execute(query, params, cb)
+    exports.oxmysql:execute(query, params, cb)
+end
+
+-- Ensure camp exists
 local function ensureCamp()
     fetchScalar("SELECT id FROM lumber_camps WHERE camp_id = ?", { Config.CampId }, function(id)
         if not id then
@@ -18,17 +28,7 @@ local function ensureCamp()
     end)
 end
 
-RegisterNetEvent("lumber:requestLedgerData", function()
-    print("SERVER RECEIVED lumber:requestLedgerData") -- ADD THIS
-    local src = source
-    buildLedgerData(function(data)
-        if not data then return end
-        TriggerClientEvent("lumber:receiveLedgerData", src, data)
-    end)
-end)
-
-CreateThread(ensureCamp)
-
+-- Player helpers
 local function getPlayerIdentifier(src)
     for _, id in ipairs(GetPlayerIdentifiers(src)) do
         if id:sub(1, 5) == "steam" or id:sub(1, 7) == "license" then
@@ -45,6 +45,7 @@ local function getCharacterInfo(src)
     return name, charId
 end
 
+-- Data fetchers
 local function getCampData(cb)
     fetchAll("SELECT * FROM lumber_camps WHERE camp_id = ?", { Config.CampId }, function(rows)
         if not rows or not rows[1] then cb(nil) return end
@@ -82,6 +83,7 @@ local function getShopFront(cb)
     end)
 end
 
+-- Ledger builder
 local function buildLedgerData(cb)
     getCampData(function(camp)
         if not camp then cb(nil) return end
@@ -151,3 +153,16 @@ local function buildLedgerData(cb)
         end)
     end)
 end
+
+-- Events
+RegisterNetEvent("lumber:requestLedgerData", function()
+    print("SERVER RECEIVED lumber:requestLedgerData")
+    local src = source
+    buildLedgerData(function(data)
+        if not data then return end
+        TriggerClientEvent("lumber:receiveLedgerData", src, data)
+    end)
+end)
+
+-- Startup
+CreateThread(ensureCamp)
