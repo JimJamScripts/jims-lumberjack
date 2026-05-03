@@ -36,7 +36,12 @@ Config.BasePayout = 4.0
 -- Construction camp data
 Config.Camps = {
     lumber_1 = {
-        office = vector3(-1400.58, -205.13, 101.91), -- office foundation location
+
+        -- ⭐ Invisible interaction point for the ledger
+        ledgerPrompt = vector3(-1400.58, -205.13, 101.91),
+
+        -- Office foundation location
+        office = vector3(-1400.58, -205.13, 101.91),
 
         workerPoints = {
             taskA = {
