@@ -1,60 +1,41 @@
 fx_version 'cerulean'
 game 'rdr3'
+lua54 'yes'
 rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships.'
 
-name 'lumberjack'
+name 'jims-lumberjack'
 author 'Jamie'
-description 'Standalone RedM Lumberjack Job'
-version '0.1.0'
+description 'Standalone RedM Lumber Company System'
+version '0.2.0'
 
-lua54 'yes'
+ui_page 'html/index.html'
+
+files {
+    'html/index.html',
+    'html/style.css',
+    'html/app.js'
+}
 
 shared_scripts {
-    'config.lua',
-    'shared/sh_construction.lua',
+    'config.lua'
 }
 
 client_scripts {
-    'client/cl_notify.lua',
-    'client/cl_business.lua',
-    'client/cl_office.lua',
-
-    -- Construction system
-    'client/cl_construction.lua',
-    'client/cl_phases.lua',
-
-    -- Existing client files
-    'client/main.lua',
-    'client/chopping.lua',
+    'client/ui.lua',
+    'client/ui_placement.lua',
+    'client/upgrades.lua',
+    'client/stables.lua',
+    'client/delivery.lua',
     'client/shop.lua',
-    'client/wagon.lua',
-    'client/ui.lua'
+    'client/utils.lua'
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
-
-    -- Construction system
-    'server/sv_phases.lua',
-    'server/sv_construction.lua',
-
-    -- Existing server files
-    'server/sv_business.lua',
-    'server/database.lua',
-    'server/company.lua',
-    'server/payouts.lua',
-    'server/main.lua'
-    'server/shop.lua'
-}
-
-ui_page 'ui/index.html'
-
-files {
-    'ui/index.html',
-    'ui/style.css',
-    'ui/script.js'
-}
-
-server_ignore {
-    'server/debug.lua'
+    'server/main.lua',
+    'server/upgrades.lua',
+    'server/stables.lua',
+    'server/delivery.lua',
+    'server/shop.lua',
+    'server/database.lua'
 }
