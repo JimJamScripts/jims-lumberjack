@@ -36,7 +36,7 @@ Config.BasePayout = 4.0
 -- Construction camp data
 Config.Camps = {
     lumber_1 = {
-        office = vector3(-1395.80, -210.32, 102.40), -- office foundation location
+        office = vector3(-1400.58, -205.13, 101.91), -- office foundation location
 
         workerPoints = {
             taskA = {
