@@ -1,23 +1,10 @@
 -- =========================================================
---  Lumber Business - Office / Company Ledger Prompt System
+--  Lumber Business - Office / Company Ledger Interaction
 -- =========================================================
 
 local buildingOffice = false
 local officeBuilt = false
 local campId = "lumber_1"
-
--- =========================================================
---  Draw 3D Text Helper
--- =========================================================
-local function Draw3DText(coords, text)
-    local onScreen, _x, _y = GetScreenCoordFromWorldCoord(coords.x, coords.y, coords.z)
-    if not onScreen then return end
-
-    SetTextScale(0.35, 0.35)
-    SetTextFontForCurrentCommand(1)
-    SetTextColor(255, 255, 255, 255)
-    DisplayText(CreateVarString(10, "LITERAL_STRING", text), _x, _y)
-end
 
 -- =========================================================
 --  Foundation Build Trigger (Phase 1)
@@ -43,7 +30,7 @@ RegisterNetEvent("construction:startFoundation", function(camp)
 end)
 
 -- =========================================================
---  Main Loop: Prompt Logic
+--  Main Loop: Invisible Ledger Interaction
 -- =========================================================
 CreateThread(function()
     while true do
@@ -51,50 +38,15 @@ CreateThread(function()
 
         local ped = PlayerPedId()
         local coords = GetEntityCoords(ped)
-        local dist = #(coords - Config.Camps[campId].prompt)
+        local ledgerPos = Config.Camps[campId].ledgerPrompt
+        local dist = #(coords - ledgerPos)
 
-        if dist > 3.0 then goto continue end
-
-        local owner = LumberBusiness.IsOwner()
-
-        -- =====================================================
-        --  NOT OWNER → No Buying, No Interaction
-        -- =====================================================
-        if not owner then
-            Draw3DText(
-                Config.Camps[campId].prompt + vector3(0, 0, 1.0),
-                "You do not own this company."
-            )
-            goto continue
-        end
-
-        -- =====================================================
-        --  OWNER BUT FOUNDATION BUILDING
-        -- =====================================================
-        if buildingOffice then
-            Draw3DText(
-                Config.Camps[campId].prompt + vector3(0, 0, 1.0),
-                "Please stand back while your foundation is built."
-            )
-            goto continue
-        end
-
-        -- =====================================================
-        --  OWNER AND FOUNDATION COMPLETE → Company Ledger
-        -- =====================================================
-        if officeBuilt then
-            Draw3DText(
-                Config.Camps[campId].prompt + vector3(0, 0, 1.0),
-                "Press [E] to open Company Ledger"
-            )
-
+        -- Only owners can interact
+        if dist < 2.0 and LumberBusiness.IsOwner() then
+            -- No text, no sign, no prompt — just invisible interaction
             if IsControlJustPressed(0, 0xCEFD9220) then
                 TriggerEvent("lumber:openCompanyLedger", campId)
             end
-
-            goto continue
         end
-
-        ::continue::
     end
 end)
