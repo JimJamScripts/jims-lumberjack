@@ -2,6 +2,7 @@
 -- LUMBER COMPANY UI CONTROLLER
 -- Handles all NUI messaging, tab switching, and UI routing
 ------------------------------------------------------------
+print("CLIENT UI LOADED")
 
 local uiOpen = false
 
