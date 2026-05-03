@@ -77,73 +77,67 @@ local function buildLedgerData(cb)
         if not camp then cb(nil) return end
 
         getWorkers(function(workers)
-        getStables(function(stables)
-        getStorages(function(storages)
-        getWagons(function(wagons)
-        getShopFront(function(shop)
+            getStables(function(stables)
+                getStorages(function(storages)
+                    getWagons(function(wagons)
+                        getShopFront(function(shop)
 
-            local workerList = {}
-            for _, w in ipairs(workers) do
-                workerList[#workerList+1] = {
-                    identifier = w.identifier,
-                    characterName = w.character_name,
-                    characterId = w.character_id,
-                    rank = w.rank
-                }
-            end
+                            local workerList = {}
+                            for _, w in ipairs(workers) do
+                                workerList[#workerList+1] = {
+                                    identifier = w.identifier,
+                                    characterName = w.character_name,
+                                    characterId = w.character_id,
+                                    rank = w.rank
+                                }
+                            end
 
-            local stablesPhase = stables.phase or 0
+                            local stablesPhase = stables.phase or 0
 
-            local stablesData = {
-                phase = stablesPhase,
-                spawn = stables.spawn_x and {
-                    x = stables.spawn_x,
-                    y = stables.spawn_y,
-                    z = stables.spawn_z,
-                    heading = stables.spawn_heading
-                } or nil,
-                ownedWagons = {},
-                availableWagons = Config.Wagons
-            }
+                            local stablesData = {
+                                phase = stablesPhase,
+                                spawn = stables.spawn_x and {
+                                    x = stables.spawn_x,
+                                    y = stables.spawn_y,
+                                    z = stables.spawn_z,
+                                    heading = stables.spawn_heading
+                                } or nil,
+                                ownedWagons = {},
+                                availableWagons = Config.Wagons
+                            }
 
-            for _, w in ipairs(wagons) do
-                stablesData.ownedWagons[#stablesData.ownedWagons+1] = {
-                    id = w.id,
-                    type = w.type,
-                    health = w.health
-                }
-            end
+                            for _, w in ipairs(wagons) do
+                                stablesData.ownedWagons[#stablesData.ownedWagons+1] = {
+                                    id = w.id,
+                                    type = w.type,
+                                    health = w.health
+                                }
+                            end
 
-            local ledger = {
-                campId = Config.CampId,
-                companyName = camp.name,
-                ownerIdentifier = camp.owner_identifier,
-                funds = camp.funds,
-                incomeFromDeliveries = camp.income_from_deliveries,
+                            local ledger = {
+                                campId = Config.CampId,
+                                companyName = camp.name,
+                                ownerIdentifier = camp.owner_identifier,
+                                funds = camp.funds,
+                                incomeFromDeliveries = camp.income_from_deliveries,
 
-                phase = camp.office_phase,
-                stablesPhase = camp.stables_phase,
+                                phase = camp.office_phase,
+                                stablesPhase = camp.stables_phase,
 
-                workers = workerList,
-                stables = stablesData,
+                                workers = workerList,
+                                stables = stablesData,
 
-                shopFront = shop and {
-                    capacity = shop.capacity
-                } or nil
-            }
+                                shopFront = shop and {
+                                    capacity = shop.capacity
+                                } or nil
+                            }
 
-            cb(ledger)
-            
-            RegisterNetEvent("lumber:requestLedgerData", function()
-    local src = source
-    buildLedgerData(function(data)
-        if not data then return end
-        TriggerClientEvent("lumber:receiveLedgerData", src, data)
-    end)
-end)
+                            cb(ledger)
 
-        end) end) end) end)
+                        end)
+                    end)
+                end)
+            end)
+        end)
     end)
 end
-
-
