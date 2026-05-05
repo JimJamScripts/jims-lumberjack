@@ -23,6 +23,15 @@ RegisterCommand("lumbertest", function()
     TriggerServerEvent("lumber:requestLedgerData")
 end)
 
+RegisterNetEvent("lumber:openUI")
+AddEventHandler("lumber:openUI", function(data)
+    SetNuiFocus(true, true)
+    SendNUIMessage({
+        action = "lumber_open",
+        data = data
+    })
+end)
+
 ------------------------------------------------------------
 -- CLOSE UI
 ------------------------------------------------------------

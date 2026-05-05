@@ -237,7 +237,7 @@ end)
 
 RegisterCommand("lumbertest", function(src)
     buildLedgerData(src, function(pkg)
-        TriggerClientEvent("lumber_open", src, pkg)
-        SetNuiFocus(true, true)
+        TriggerClientEvent("lumber:openUI", src, pkg)
     end)
 end)
+
