@@ -157,6 +157,17 @@ function makeDropZone(element, onDropCallback) {
     });
 }
 
+function renderStorageItems(data, storageName) {
+    const storageList = document.getElementById("storage-items");
+    storageList.innerHTML = "";
+
+    const items = data.storages?.[storageName] || [];
+
+    items.forEach(it => {
+        storageList.appendChild(makeItemElement(it.name, it.count, "storage"));
+    });
+}
+
 function updateInventory(data) {
     const playerList = document.getElementById("player-items");
     const storageList = document.getElementById("storage-items");
@@ -201,4 +212,14 @@ function updateInventory(data) {
     });
 
     makeDropZone(storageList, (src) => {
-        if (src.context === "player")
+        if (src.context === "player") {
+            const amount = prompt("Deposit amount:", src.count);
+            if (!amount) return;
+            post("lumber_inventory_deposit", {
+                storage: storageSelect.value,
+                item: src.item,
+                amount: Number(amount)
+            });
+        }
+    });
+}
