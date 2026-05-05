@@ -1,3 +1,4 @@
+console.log("Warmenu NUI Loaded");
 const root = document.getElementById('wm-root');
 const mainMenu = document.getElementById('wm-main');
 const panels = {
