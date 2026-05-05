@@ -55,7 +55,7 @@ CreateThread(ensureCamp)
 
 
 -----------------------------------------
--- LEDGER DATA PACKAGE (SIMPLE VERSION)
+-- LEDGER DATA PACKAGE (SIMPLE)
 -----------------------------------------
 
 local function buildLedgerData(src, cb)
@@ -99,7 +99,8 @@ end
 -- LEDGER: DEPOSIT
 -----------------------------------------
 
-RegisterNetEvent("lumber_ledger_deposit", function(data)
+RegisterNetEvent("lumber_ledger_deposit")
+AddEventHandler("lumber_ledger_deposit", function(data)
     local src = source
     local amount = tonumber(data.amount)
     if not amount or amount <= 0 then return end
@@ -114,7 +115,7 @@ RegisterNetEvent("lumber_ledger_deposit", function(data)
     })
 
     buildLedgerData(src, function(pkg)
-        TriggerClientEvent("lumber_open_ledger", src, pkg)
+        TriggerClientEvent("lumber:receiveLedgerData", src, pkg)
     end)
 end)
 
@@ -123,7 +124,8 @@ end)
 -- LEDGER: WITHDRAW
 -----------------------------------------
 
-RegisterNetEvent("lumber_ledger_withdraw", function(data)
+RegisterNetEvent("lumber_ledger_withdraw")
+AddEventHandler("lumber_ledger_withdraw", function(data)
     local src = source
     local amount = tonumber(data.amount)
     if not amount or amount <= 0 then return end
@@ -139,7 +141,7 @@ RegisterNetEvent("lumber_ledger_withdraw", function(data)
         Character.addCurrency(0, amount)
 
         buildLedgerData(src, function(pkg)
-            TriggerClientEvent("lumber_open_ledger", src, pkg)
+            TriggerClientEvent("lumber:receiveLedgerData", src, pkg)
         end)
     end)
 end)
@@ -149,7 +151,8 @@ end)
 -- INVENTORY: DEPOSIT ITEM
 -----------------------------------------
 
-RegisterNetEvent("lumber_inventory_deposit", function(data)
+RegisterNetEvent("lumber_inventory_deposit")
+AddEventHandler("lumber_inventory_deposit", function(data)
     local src = source
     local item = data.item
     local amount = tonumber(data.amount)
@@ -164,7 +167,7 @@ RegisterNetEvent("lumber_inventory_deposit", function(data)
     end
 
     buildInventoryData(src, function(pkg)
-        TriggerClientEvent("lumber_open_inventory", src, pkg)
+        TriggerClientEvent("lumber:receiveInventoryData", src, pkg)
     end)
 end)
 
@@ -173,7 +176,8 @@ end)
 -- INVENTORY: WITHDRAW ITEM
 -----------------------------------------
 
-RegisterNetEvent("lumber_inventory_withdraw", function(data)
+RegisterNetEvent("lumber_inventory_withdraw")
+AddEventHandler("lumber_inventory_withdraw", function(data)
     local src = source
     local item = data.item
     local amount = tonumber(data.amount)
@@ -191,33 +195,28 @@ RegisterNetEvent("lumber_inventory_withdraw", function(data)
         Inventory:addItem(src, item, amount)
 
         buildInventoryData(src, function(pkg)
-            TriggerClientEvent("lumber_open_inventory", src, pkg)
+            TriggerClientEvent("lumber:receiveInventoryData", src, pkg)
         end)
     end)
 end)
 
 
 -----------------------------------------
--- NUI CALLBACKS
+-- TAB SWITCHING (client → server)
 -----------------------------------------
 
-RegisterNUICallback("lumber_ui_close", function(_, cb)
-    SetNuiFocus(false, false)
-    cb({})
-end)
-
-RegisterNUICallback("lumber_ui_switch_tab", function(data, cb)
+RegisterNetEvent("lumber:uiSwitchTab")
+AddEventHandler("lumber:uiSwitchTab", function(tab)
     local src = source
-    local tab = data.tab
 
     if tab == "ledger" then
         buildLedgerData(src, function(pkg)
-            TriggerClientEvent("lumber_open_ledger", src, pkg)
+            TriggerClientEvent("lumber:receiveLedgerData", src, pkg)
         end)
 
     elseif tab == "inventory" then
         buildInventoryData(src, function(pkg)
-            TriggerClientEvent("lumber_open_inventory", src, pkg)
+            TriggerClientEvent("lumber:receiveInventoryData", src, pkg)
         end)
 
     elseif tab == "upgrades" then
@@ -226,8 +225,19 @@ RegisterNUICallback("lumber_ui_switch_tab", function(data, cb)
     elseif tab == "stables" then
         TriggerClientEvent("lumber_open_stables", src, {})
     end
+end)
 
-    cb({})
+
+-----------------------------------------
+-- REQUEST LEDGER (client → server)
+-----------------------------------------
+
+RegisterNetEvent("lumber:requestLedgerData")
+AddEventHandler("lumber:requestLedgerData", function()
+    local src = source
+    buildLedgerData(src, function(pkg)
+        TriggerClientEvent("lumber:receiveLedgerData", src, pkg)
+    end)
 end)
 
 
@@ -237,7 +247,7 @@ end)
 
 RegisterCommand("lumbertest", function(src)
     buildLedgerData(src, function(pkg)
-        TriggerClientEvent("lumber:openUI", src, pkg)
+        TriggerClientEvent("lumber:receiveLedgerData", src, pkg)
+        SetNuiFocus(true, true)
     end)
 end)
-

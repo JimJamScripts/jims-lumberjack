@@ -1,15 +1,15 @@
 ------------------------------------------------------------
--- LUMBER COMPANY UI CONTROLLER
--- Handles all NUI messaging, tab switching, and UI routing
+-- LUMBER COMPANY UI CONTROLLER (CLEANED)
 ------------------------------------------------------------
 print("CLIENT UI LOADED")
 
 local uiOpen = false
 
 ------------------------------------------------------------
--- OPEN UI (Triggered when ledger data arrives)
+-- OPEN UI (SERVER → CLIENT)
 ------------------------------------------------------------
-RegisterNetEvent("lumber:receiveLedgerData", function(data)
+RegisterNetEvent("lumber:receiveLedgerData")
+AddEventHandler("lumber:receiveLedgerData", function(data)
     uiOpen = true
     SetNuiFocus(true, true)
 
@@ -19,17 +19,19 @@ RegisterNetEvent("lumber:receiveLedgerData", function(data)
     })
 end)
 
-RegisterCommand("lumbertest", function()
-    TriggerServerEvent("lumber:requestLedgerData")
-end)
-
-RegisterNetEvent("lumber:openUI")
-AddEventHandler("lumber:openUI", function(data)
-    SetNuiFocus(true, true)
+RegisterNetEvent("lumber:receiveInventoryData")
+AddEventHandler("lumber:receiveInventoryData", function(data)
     SendNUIMessage({
-        action = "lumber_open",
+        action = "lumber_open_inventory",
         data = data
     })
+end)
+
+------------------------------------------------------------
+-- TEST COMMAND
+------------------------------------------------------------
+RegisterCommand("lumbertest", function()
+    TriggerServerEvent("lumber:requestLedgerData")
 end)
 
 ------------------------------------------------------------
@@ -42,13 +44,10 @@ RegisterNUICallback("lumber_ui_close", function(_, cb)
 end)
 
 ------------------------------------------------------------
--- TAB SWITCHING
+-- TAB SWITCHING (CLIENT → SERVER)
 ------------------------------------------------------------
 RegisterNUICallback("lumber_ui_switch_tab", function(data, cb)
-    SendNUIMessage({
-        action = "lumber_switch_tab",
-        tab = data.tab
-    })
+    TriggerServerEvent("lumber:uiSwitchTab", data.tab)
     cb({})
 end)
 
@@ -56,17 +55,17 @@ end)
 -- LEDGER TAB
 ------------------------------------------------------------
 RegisterNUICallback("lumber_ledger_deposit", function(data, cb)
-    TriggerServerEvent("lumber:depositFunds", data.amount)
+    TriggerServerEvent("lumber_ledger_deposit", { amount = data.amount })
     cb({})
 end)
 
 RegisterNUICallback("lumber_ledger_withdraw", function(data, cb)
-    TriggerServerEvent("lumber:withdrawFunds", data.amount)
+    TriggerServerEvent("lumber_ledger_withdraw", { amount = data.amount })
     cb({})
 end)
 
 ------------------------------------------------------------
--- UPGRADES TAB
+-- UPGRADES TAB (PLACEHOLDERS)
 ------------------------------------------------------------
 RegisterNUICallback("lumber_upgrade_office", function(_, cb)
     TriggerServerEvent("lumber:upgradeOfficePhase")
@@ -79,7 +78,7 @@ RegisterNUICallback("lumber_place_upgrade", function(data, cb)
 end)
 
 ------------------------------------------------------------
--- STABLES TAB
+-- STABLES TAB (PLACEHOLDERS)
 ------------------------------------------------------------
 RegisterNUICallback("lumber_upgrade_stables", function(_, cb)
     TriggerServerEvent("lumber:upgradeStablesPhase")
@@ -100,72 +99,11 @@ end)
 -- INVENTORY TAB
 ------------------------------------------------------------
 RegisterNUICallback("lumber_inventory_withdraw", function(data, cb)
-    TriggerServerEvent("lumber:inventoryWithdraw", data)
+    TriggerServerEvent("lumber_inventory_withdraw", data)
     cb({})
 end)
 
 RegisterNUICallback("lumber_inventory_deposit", function(data, cb)
-    TriggerServerEvent("lumber:inventoryDeposit", data)
+    TriggerServerEvent("lumber_inventory_deposit", data)
     cb({})
-end)
-
-------------------------------------------------------------
--- SHOP FRONT (EMPLOYEE)
-------------------------------------------------------------
-RegisterNUICallback("lumber_shop_deposit", function(data, cb)
-    TriggerServerEvent("lumber:shopDepositItem", data)
-    cb({})
-end)
-
-RegisterNUICallback("lumber_shop_withdraw", function(data, cb)
-    TriggerServerEvent("lumber:shopWithdrawItem", data)
-    cb({})
-end)
-
-RegisterNUICallback("lumber_shop_set_price", function(data, cb)
-    TriggerServerEvent("lumber:shopSetPrice", data)
-    cb({})
-end)
-
-------------------------------------------------------------
--- SHOP FRONT (CUSTOMER)
-------------------------------------------------------------
-RegisterNUICallback("lumber_shop_buy", function(data, cb)
-    TriggerServerEvent("lumber:shopBuyItem", data)
-    cb({})
-end)
-
-------------------------------------------------------------
--- DELIVERY TAB
-------------------------------------------------------------
-RegisterNUICallback("lumber_start_delivery", function(data, cb)
-    TriggerServerEvent("lumber:startDelivery", data)
-    cb({})
-end)
-
-RegisterNUICallback("lumber_complete_delivery", function(data, cb)
-    TriggerServerEvent("lumber:completeDelivery", data)
-    cb({})
-end)
-
-
-------------------------------------------------------------
--- WORLD INTERACTION (Press G near shop front)
-------------------------------------------------------------
-CreateThread(function()
-    while true do
-        Wait(0)
-
-        if not uiOpen then
-            local ped = PlayerPedId()
-            local coords = GetEntityCoords(ped)
-            local shop = Config.ShopFront.location
-
-            if #(coords - vector3(shop.x, shop.y, shop.z)) < 2.0 then
-                if IsControlJustPressed(0, 0x760A9C6F) then
-                    TriggerServerEvent("lumber:openShopCustomer")
-                end
-            end
-        end
-    end
 end)
