@@ -21,6 +21,7 @@ shared_scripts {
 
 client_scripts {
     'client.lua',
+    'client/warmenu.lua',
     'config.lua',
     'client/ui.lua',
     'client/ui_placement.lua',
