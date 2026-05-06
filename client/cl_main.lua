@@ -84,7 +84,8 @@ end)
 --========================================================--
 RegisterNetEvent("jims-lumberjack:updateBusinessData", function(data)
     BusinessData = data
-    Utils.Debug("Business data synced.")
+    Config.Trees = data.trees or {}
+    Utils.Debug("Business data synced. Trees loaded: " .. tostring(#Config.Trees))
 end)
 
 --========================================================--
