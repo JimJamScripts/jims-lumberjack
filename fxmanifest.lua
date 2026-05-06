@@ -48,5 +48,13 @@ files {
     'html/index.html',
     'html/style.css',
     'html/app.js',
-    'data/trees.json'
+    'data/trees.json',
+    'data/sap_buckets.json',
+    'data/stations.json',
+    'data/storage_data.json',
+    'data/shopfront_data.json',
+    'data/business_data.json',
+    'data/employees.json',
+    'data/ledger.json',
+    'data/upgrades.json'
 }
