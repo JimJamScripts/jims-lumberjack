@@ -1,5 +1,5 @@
-{
-  "1": {
+[
+  {
     "id": 1,
     "species": "pine",
     "model": "treefall_flat_start",
@@ -7,7 +7,7 @@
     "heading": 100.52349853515625,
     "state": "ready"
   },
-  "2": {
+  {
     "id": 2,
     "species": "pine",
     "model": "treefall_flat_start",
@@ -15,7 +15,7 @@
     "heading": 60.87430953979492,
     "state": "ready"
   },
-  "3": {
+  {
     "id": 3,
     "species": "pine",
     "model": "treefall_flat_start",
@@ -23,7 +23,7 @@
     "heading": 39.31940460205078,
     "state": "ready"
   },
-  "4": {
+  {
     "id": 4,
     "species": "pine",
     "model": "des_treefall_up15_start",
@@ -31,7 +31,7 @@
     "heading": -91.70004272460938,
     "state": "ready"
   },
-  "5": {
+  {
     "id": 5,
     "species": "pine",
     "model": "des_treefall_up15_start",
@@ -39,7 +39,7 @@
     "heading": -65.00579071044922,
     "state": "ready"
   },
-  "6": {
+  {
     "id": 6,
     "species": "oak",
     "model": "treefall_flat_start",
@@ -47,7 +47,7 @@
     "heading": 22.12860298156738,
     "state": "ready"
   },
-  "7": {
+  {
     "id": 7,
     "species": "oak",
     "model": "treefall_flat_start",
@@ -55,7 +55,7 @@
     "heading": 177.99978637695312,
     "state": "ready"
   },
-  "8": {
+  {
     "id": 8,
     "species": "oak",
     "model": "treefall_flat_start",
@@ -63,7 +63,7 @@
     "heading": 29.05174446105957,
     "state": "ready"
   },
-  "9": {
+  {
     "id": 9,
     "species": "oak",
     "model": "des_treefall_up15_start",
@@ -71,7 +71,7 @@
     "heading": 48.25899124145508,
     "state": "ready"
   },
-  "10": {
+  {
     "id": 10,
     "species": "oak",
     "model": "des_treefall_up15_start",
@@ -79,7 +79,7 @@
     "heading": 96.44135284423828,
     "state": "ready"
   },
-  "11": {
+  {
     "id": 11,
     "species": "maple",
     "model": "des_treefall_up15_start",
@@ -87,7 +87,7 @@
     "heading": -58.28652191162109,
     "state": "ready"
   },
-  "12": {
+  {
     "id": 12,
     "species": "maple",
     "model": "des_treefall_up15_start",
@@ -95,7 +95,7 @@
     "heading": -74.6212158203125,
     "state": "ready"
   },
-  "13": {
+  {
     "id": 13,
     "species": "maple",
     "model": "des_treefall_up15_start",
@@ -103,7 +103,7 @@
     "heading": -41.95719909667969,
     "state": "ready"
   },
-  "14": {
+  {
     "id": 14,
     "species": "maple",
     "model": "des_treefall_up15_start",
@@ -111,7 +111,7 @@
     "heading": -59.62905883789062,
     "state": "ready"
   },
-  "15": {
+  {
     "id": 15,
     "species": "maple",
     "model": "des_treefall_up15_start",
@@ -119,7 +119,7 @@
     "heading": -74.24591827392578,
     "state": "ready"
   },
-  "16": {
+  {
     "id": 16,
     "species": "cedar",
     "model": "des_treefall_up15_start",
@@ -127,7 +127,7 @@
     "heading": -85.26333618164062,
     "state": "ready"
   },
-  "17": {
+  {
     "id": 17,
     "species": "cedar",
     "model": "des_treefall_up15_start",
@@ -135,7 +135,7 @@
     "heading": -17.43038368225097,
     "state": "ready"
   },
-  "18": {
+  {
     "id": 18,
     "species": "cedar",
     "model": "des_treefall_up15_start",
@@ -143,7 +143,7 @@
     "heading": -111.55517578125,
     "state": "ready"
   },
-  "19": {
+  {
     "id": 19,
     "species": "cedar",
     "model": "des_treefall_up15_start",
@@ -151,7 +151,7 @@
     "heading": -151.364013671875,
     "state": "ready"
   },
-  "20": {
+  {
     "id": 20,
     "species": "cedar",
     "model": "des_treefall_up15_start",
@@ -159,4 +159,4 @@
     "heading": -32.70242309570312,
     "state": "ready"
   }
-}
+]
