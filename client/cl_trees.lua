@@ -115,3 +115,20 @@ end)
 RegisterNetEvent("jims-lumberjack:updateTrees", function()
     Utils.Debug("Tree states updated.")
 end)
+
+CreateThread(function()
+    Wait(500) -- let map load
+
+    for id, tree in pairs(Config.Trees) do
+        local model = GetHashKey(tree.model)
+
+        RequestModel(model)
+        while not HasModelLoaded(model) do
+            Wait(10)
+        end
+
+        local obj = CreateObject(model, tree.coords[1], tree.coords[2], tree.coords[3], false, false, false)
+        SetEntityHeading(obj, tree.heading)
+        FreezeEntityPosition(obj, true)
+    end
+end)
