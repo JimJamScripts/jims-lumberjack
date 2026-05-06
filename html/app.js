@@ -1,125 +1,125 @@
-console.log("Warmenu NUI Loaded");
-const root = document.getElementById('wm-root');
-const mainMenu = document.getElementById('wm-main');
-const panels = {
-    ledger: document.getElementById('panel-ledger'),
-    upgrades: document.getElementById('panel-upgrades'),
-    stables: document.getElementById('panel-stables'),
-    inventory: document.getElementById('panel-inventory')
-};
+let currentTab = "storage";
 
-const items = Array.from(document.querySelectorAll('.wm-item'));
-const desc = document.getElementById('wm-desc');
-
-const descriptions = {
-    ledger: 'Manage company funds, income, deposits and withdrawals.',
-    upgrades: 'Upgrade office, storage, workstations and tents.',
-    stables: 'Manage stables, wagons and spawn points.',
-    inventory: 'Access company inventory (coming soon).'
-};
-
-let currentIndex = 0;
-let inSubmenu = false;
-let currentPanel = null;
-
-function setSelected(index) {
-    items.forEach((el, i) => {
-        el.classList.toggle('selected', i === index);
-    });
-    const target = items[index].dataset.target;
-    desc.textContent = descriptions[target] || '';
-    currentIndex = index;
-}
-
-function openMainMenu() {
-    inSubmenu = false;
-    currentPanel = null;
-    Object.values(panels).forEach(p => p.classList.add('hidden'));
-    mainMenu.classList.remove('hidden');
-    root.classList.remove('hidden');
-    setSelected(currentIndex);
-}
-
-function openPanel(target) {
-    inSubmenu = true;
-    mainMenu.classList.add('hidden');
-    Object.values(panels).forEach(p => p.classList.add('hidden'));
-    const panel = panels[target];
-    if (panel) {
-        panel.classList.remove('hidden');
-        currentPanel = target;
-    }
-}
-
-function closeUI() {
-    root.classList.add('hidden');
-    inSubmenu = false;
-    currentPanel = null;
-    Object.values(panels).forEach(p => p.classList.add('hidden'));
-    mainMenu.classList.remove('hidden');
-}
-
-window.addEventListener('keydown', (e) => {
-    if (root.classList.contains('hidden')) return;
-
-    // BACKSPACE: back / close
-    if (e.key === 'Backspace') {
-        e.preventDefault();
-        if (inSubmenu) {
-            openMainMenu();
-        } else {
-            closeUI();
-            fetch(`https://${GetParentResourceName()}/close`, { method: 'POST', body: '{}' }).catch(() => {});
-        }
-        return;
-    }
-
-    if (inSubmenu) return;
-
-    // UP/DOWN navigation
-    if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        currentIndex = (currentIndex - 1 + items.length) % items.length;
-        setSelected(currentIndex);
-    } else if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        currentIndex = (currentIndex + 1) % items.length;
-        setSelected(currentIndex);
-    } else if (e.key === 'Enter') {
-        e.preventDefault();
-        const target = items[currentIndex].dataset.target;
-        openPanel(target);
-    }
-});
-
-// NUI open/close from Lua (Warmenu → NUI)
-window.addEventListener('message', (event) => {
+window.addEventListener("message", (event) => {
     const data = event.data;
 
-    if (!data) return;
+    if (data.action === "open") {
+        document.getElementById("ui").classList.remove("hidden");
+        switchTab("storage");
+    }
 
-    if (data.action === 'open') {
-        // Always unhide the root
-        root.classList.remove('hidden');
+    if (data.action === "close") {
+        document.getElementById("ui").classList.add("hidden");
+    }
 
-        // If Warmenu sent a tab, open that panel directly
-        if (data.tab) {
-            openPanel(data.tab);
-        } else {
-            // Fallback: open main menu (legacy)
-            openMainMenu();
-        }
+    if (data.action === "updateStorage") {
+        renderStorage(data.items, data.capacity);
+    }
 
-    } else if (data.action === 'close') {
-        closeUI();
+    if (data.action === "updateShopfront") {
+        renderShopfront(data.items, data.balance, data.canManage);
+    }
 
-    } else if (data.action === 'updateLedger') {
-        if (typeof data.funds !== 'undefined') {
-            document.getElementById('ledger-funds').textContent = `$${data.funds}`;
-        }
-        if (typeof data.income !== 'undefined') {
-            document.getElementById('ledger-income').textContent = `$${data.income}`;
-        }
+    if (data.action === "updateProcessing") {
+        renderProcessing(data);
+    }
+
+    if (data.action === "updateDeliveries") {
+        renderDeliveries(data);
+    }
+
+    if (data.action === "updateOffice") {
+        renderOffice(data);
     }
 });
 
+/* CLOSE BUTTON */
+document.getElementById("closeBtn").addEventListener("click", () => {
+    fetch(`https://${GetParentResourceName()}/closeUI`, { method: "POST" });
+    document.getElementById("ui").classList.add("hidden");
+});
+
+/* TAB SWITCHING */
+document.querySelectorAll(".tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+        switchTab(tab.dataset.tab);
+    });
+});
+
+function switchTab(tab) {
+    currentTab = tab;
+
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelector(`.tab[data-tab="${tab}"]`).classList.add("active");
+
+    document.querySelectorAll(".panel").forEach(p => p.classList.add("hidden"));
+    document.getElementById(`${tab}Panel`).classList.remove("hidden");
+}
+
+/* STORAGE RENDER */
+function renderStorage(items, capacity) {
+    const panel = document.getElementById("storagePanel");
+    panel.innerHTML = `<h2>Storage (${Object.values(items).reduce((a,b)=>a+b,0)}/${capacity})</h2>`;
+
+    let html = `<div class="grid">`;
+    for (let item in items) {
+        html += `
+            <div class="slot">
+                <div>${item}</div>
+                <div class="count">${items[item]}</div>
+            </div>
+        `;
+    }
+    html += `</div>`;
+
+    panel.innerHTML += html;
+}
+
+/* SHOPFRONT RENDER */
+function renderShopfront(items, balance, canManage) {
+    const panel = document.getElementById("shopfrontPanel");
+    panel.innerHTML = `<h2>Shopfront — Balance: $${balance}</h2>`;
+
+    let html = `<div class="grid">`;
+    for (let item in items) {
+        html += `
+            <div class="slot">
+                <div>${item}</div>
+                <div class="count">${items[item].stock}</div>
+            </div>
+        `;
+    }
+    html += `</div>`;
+
+    panel.innerHTML += html;
+}
+
+/* PROCESSING */
+function renderProcessing(data) {
+    document.getElementById("processingPanel").innerHTML = `
+        <h2>Processing</h2>
+        <p>Input: ${data.input}</p>
+        <p>Output: ${data.output}</p>
+    `;
+}
+
+/* DELIVERIES */
+function renderDeliveries(data) {
+    document.getElementById("deliveriesPanel").innerHTML = `
+        <h2>Deliveries</h2>
+        <p>Route: ${data.route}</p>
+        <p>Items: ${data.items}</p>
+        <p>Payout: $${data.payout}</p>
+    `;
+}
+
+/* OFFICE */
+function renderOffice(data) {
+    const panel = document.getElementById("officePanel");
+    panel.innerHTML = `<h2>Office</h2>`;
+
+    panel.innerHTML += `<h3>Employees</h3>`;
+    for (let id in data.employees) {
+        panel.innerHTML += `<p>${data.employees[id].name} — Rank ${data.employees[id].rank}</p>`;
+    }
+}

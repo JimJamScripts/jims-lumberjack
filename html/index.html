@@ -2,120 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Lumber Company Menu</title>
+    <title>Lumber Company UI</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="wm-root" class="wm-root hidden">
-    <!-- MAIN MENU -->
-    <div id="wm-main" class="wm-panel">
-        <div class="wm-title">VORP ADMIN</div>
+<div id="ui" class="hidden">
 
-        <div class="wm-list">
-            <div class="wm-item selected" data-target="ledger">
-                <span>Ledger</span>
-            </div>
-            <div class="wm-item" data-target="upgrades">
-                <span>Upgrades</span>
-            </div>
-            <div class="wm-item" data-target="stables">
-                <span>Stables</span>
-            </div>
-            <div class="wm-item" data-target="inventory">
-                <span>Inventory</span>
-            </div>
-        </div>
-
-        <div class="wm-footer">
-            <div class="wm-page">1/4</div>
-            <div id="wm-desc" class="wm-desc">
-                Manage company funds, income, deposits and withdrawals.
-            </div>
-        </div>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="title">LUMBER COMPANY</div>
+        <div class="close" id="closeBtn">X</div>
     </div>
 
-    <!-- LEDGER PANEL -->
-    <div id="panel-ledger" class="wm-panel hidden">
-        <div class="wm-title">Ledger</div>
-        <div class="wm-separator"></div>
-
-        <div class="wm-line">
-            <span>Total Funds:</span>
-            <span id="ledger-funds">$0</span>
-        </div>
-        <div class="wm-line">
-            <span>Total Income:</span>
-            <span id="ledger-income">$0</span>
-        </div>
-
-        <div class="wm-section-label">Deposit</div>
-        <div class="wm-input-row">
-            <input id="ledger-deposit-amount" type="number" placeholder="Amount">
-            <button id="ledger-deposit-btn" class="wm-btn">Confirm</button>
-        </div>
-
-        <div class="wm-section-label">Withdraw</div>
-        <div class="wm-input-row">
-            <input id="ledger-withdraw-amount" type="number" placeholder="Amount">
-            <button id="ledger-withdraw-btn" class="wm-btn">Confirm</button>
-        </div>
-
-        <div class="wm-footer">
-            <div class="wm-hint">BACKSPACE - Back</div>
-        </div>
+    <!-- TABS -->
+    <div class="tabs">
+        <div class="tab active" data-tab="storage">Storage</div>
+        <div class="tab" data-tab="shopfront">Shopfront</div>
+        <div class="tab" data-tab="processing">Processing</div>
+        <div class="tab" data-tab="deliveries">Deliveries</div>
+        <div class="tab" data-tab="office">Office</div>
     </div>
 
-    <!-- UPGRADES PANEL -->
-    <div id="panel-upgrades" class="wm-panel hidden">
-        <div class="wm-title">Upgrades</div>
-        <div class="wm-separator"></div>
+    <!-- CONTENT PANELS -->
+    <div class="panel" id="storagePanel"></div>
+    <div class="panel hidden" id="shopfrontPanel"></div>
+    <div class="panel hidden" id="processingPanel"></div>
+    <div class="panel hidden" id="deliveriesPanel"></div>
+    <div class="panel hidden" id="officePanel"></div>
 
-        <div class="wm-list">
-            <div class="wm-line">Office Upgrade</div>
-            <div class="wm-line">Storage Upgrades</div>
-            <div class="wm-line">Workstation Upgrades</div>
-            <div class="wm-line">Tent Placement</div>
-        </div>
-
-        <div class="wm-footer">
-            <div class="wm-hint">BACKSPACE - Back</div>
-        </div>
-    </div>
-
-    <!-- STABLES PANEL -->
-    <div id="panel-stables" class="wm-panel hidden">
-        <div class="wm-title">Stables</div>
-        <div class="wm-separator"></div>
-
-        <div class="wm-line">Upgrade Stables</div>
-
-        <div class="wm-section-label">Buy Wagons</div>
-        <div class="wm-list">
-            <div class="wm-line">Lumber Wagon</div>
-            <div class="wm-line">Sap Wagon</div>
-            <div class="wm-line">Cargo Wagon</div>
-        </div>
-
-        <div class="wm-section-label">Spawn</div>
-        <div class="wm-line">Set Wagon Spawn</div>
-
-        <div class="wm-footer">
-            <div class="wm-hint">BACKSPACE - Back</div>
-        </div>
-    </div>
-
-    <!-- INVENTORY PANEL -->
-    <div id="panel-inventory" class="wm-panel hidden">
-        <div class="wm-title">Inventory</div>
-        <div class="wm-separator"></div>
-
-        <div class="wm-line">Inventory UI coming next.</div>
-
-        <div class="wm-footer">
-            <div class="wm-hint">BACKSPACE - Back</div>
-        </div>
-    </div>
 </div>
 
 <script src="app.js"></script>
