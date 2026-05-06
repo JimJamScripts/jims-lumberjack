@@ -7,6 +7,20 @@ local currentTree = nil
 local hitCount = 0
 
 --========================================================--
+--  CONFIG + TREE DATA (CLIENT-SIDE)
+--========================================================--
+Config = Config or {}
+Config.Trees = {}   -- filled by server via updateTrees event
+
+--========================================================--
+--  RECEIVE TREE DATA FROM SERVER
+--========================================================--
+RegisterNetEvent("jims-lumberjack:updateTrees", function(trees)
+    Config.Trees = trees or {}
+    Utils.Debug("Tree states updated. Received " .. tostring(#Config.Trees) .. " trees.")
+end)
+
+--========================================================--
 --  PLAY CHOP ANIMATION
 --========================================================--
 local function PlayChopAnim()
@@ -110,13 +124,14 @@ CreateThread(function()
 end)
 
 --========================================================--
---  TREE STATE UPDATED FROM SERVER
+--  SPAWN TREES FROM JSON (PERSISTENT)
 --========================================================--
-RegisterNetEvent("jims-lumberjack:updateTrees", function()
-    Utils.Debug("Tree states updated.")
-end)
-
 CreateThread(function()
+    -- Wait until server sends tree list
+    while not Config.Trees or next(Config.Trees) == nil do
+        Wait(100)
+    end
+
     Wait(500) -- let map load
 
     for id, tree in pairs(Config.Trees) do
@@ -127,8 +142,17 @@ CreateThread(function()
             Wait(10)
         end
 
-        local obj = CreateObject(model, tree.coords[1], tree.coords[2], tree.coords[3], false, false, false)
+        local obj = CreateObject(
+            model,
+            tree.coords[1],
+            tree.coords[2],
+            tree.coords[3],
+            false, false, false
+        )
+
         SetEntityHeading(obj, tree.heading)
         FreezeEntityPosition(obj, true)
     end
+
+    Utils.Debug("Spawned all persistent lumber trees.")
 end)
