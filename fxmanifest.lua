@@ -47,6 +47,6 @@ ui_page 'html/index.html'
 files {
     'html/index.html',
     'html/style.css',
-    'html/app.js'
-    'data/trees.json',
+    'html/app.js',
+    'data/trees.json'
 }
