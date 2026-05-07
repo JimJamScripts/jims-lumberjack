@@ -144,9 +144,9 @@ CreateThread(function()
 
         local obj = CreateObject(
             model,
-            tree.coords[1],
-            tree.coords[2],
-            tree.coords[3],
+            tree.x,
+            tree.y,
+            tree.z,
             false, false, false
         )
 
