@@ -3,6 +3,13 @@
 --========================================================--
 
 local data = LumberServer.GetData()
+--========================================================--
+--  SEND TREES TO A SINGLE CLIENT ON REQUEST
+--========================================================--
+RegisterNetEvent("jims-lumberjack:requestTrees", function()
+    local src = source
+    TriggerClientEvent("jims-lumberjack:updateTrees", src, data.trees)
+end)
 
 --========================================================--
 --  SAVE + SYNC HELPERS

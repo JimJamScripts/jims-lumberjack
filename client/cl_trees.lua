@@ -127,6 +127,9 @@ end)
 --  SPAWN TREES FROM JSON (PERSISTENT)
 --========================================================--
 CreateThread(function()
+    -- Ask server for trees on client start
+    TriggerServerEvent("jims-lumberjack:requestTrees")
+
     -- Wait until server sends tree list
     while not Config.Trees or next(Config.Trees) == nil do
         Wait(100)
@@ -142,7 +145,7 @@ CreateThread(function()
             Wait(10)
         end
 
-        local obj = CreateObject(
+        local obj = CreateObjectNoOffset(
             model,
             tree.x,
             tree.y,
