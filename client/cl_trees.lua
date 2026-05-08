@@ -131,15 +131,13 @@ end)
 --  SPAWN TREES FROM JSON (PERSISTENT)
 --========================================================--
 CreateThread(function()
-    -- Ask server for trees on client start
     TriggerServerEvent("jims-lumberjack:requestTrees")
 
-    -- Wait until server sends tree list
     while not Config.Trees or next(Config.Trees) == nil do
         Wait(100)
     end
 
-    Wait(500) -- let map load
+    Wait(500)
 
     for id, tree in pairs(Config.Trees) do
         local model = GetHashKey(tree.model)
@@ -167,19 +165,17 @@ CreateThread(function()
 end)
 
 --========================================================--
---  TREE FALL SEQUENCE (ANIMATED FALL + FX)
+--  TREE FALL SEQUENCE (ANIMATED FALL, NO PARTICLES)
 --========================================================--
 RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
     local tree = Config.Trees[treeId]
     if not tree then return end
 
-    -- Delete standing tree
     if SpawnedTrees[treeId] then
         DeleteObject(SpawnedTrees[treeId])
         SpawnedTrees[treeId] = nil
     end
 
-    -- Determine fall models based on standing model
     local startModel, endModel
 
     if tree.model == "treefall_flat_start" then
@@ -190,20 +186,16 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
         endModel   = "des_treefall_up15_end"
     end
 
-    -- Load start model
     local startHash = GetHashKey(startModel)
     RequestModel(startHash)
     while not HasModelLoaded(startHash) do Wait(10) end
 
-    -- Forward vector from heading
     local headingRad = math.rad(tree.heading)
     local forwardX = math.sin(headingRad)
     local forwardY = math.cos(headingRad)
 
-    -- How far forward the tree will fall
     local fallDistance = 2.0
 
-    -- Spawn falling-start model at base position
     local obj = CreateObjectNoOffset(
         startHash,
         tree.x,
@@ -214,64 +206,43 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
     SetEntityHeading(obj, tree.heading)
     FreezeEntityPosition(obj, false)
 
-    -- Play cracking sound at start
     Citizen.InvokeNative(0xCCE219C922737BFA, "FALL_TREE_CRACK", tree.x, tree.y, tree.z, 0, 0, 0, true, 0)
 
-    -- Camera shake for nearby players
     local ped = PlayerPedId()
     local pcoords = GetEntityCoords(ped)
     if #(pcoords - vector3(tree.x, tree.y, tree.z)) < 25.0 then
         ShakeGameplayCam("SMALL_EXPLOSION_SHAKE", 0.3)
     end
 
-    -- Dust FX at base
-    UseParticleFxAssetNextCall("core")
-    local dustFx = StartParticleFxLoopedAtCoord(
-        "ent_amb_wood_splinter",
-        tree.x, tree.y, tree.z,
-        0.0, 0.0, 0.0,
-        1.0, false, false, false, false
-    )
-
-    -- Animate fall: rotate + move forward over time
-    local duration = 1200 -- ms
+    local duration = 1200
     local steps = 30
     local waitPerStep = math.floor(duration / steps)
-    local totalRotation = 80.0 -- degrees to tip
+    local totalRotation = 80.0
 
     for i = 1, steps do
         local t = i / steps
 
-        -- Move forward
         local curDist = fallDistance * t
         local newX = tree.x + forwardX * curDist
         local newY = tree.y + forwardY * curDist
 
         SetEntityCoordsNoOffset(obj, newX, newY, tree.z, false, false, false)
 
-        -- Rotate around X to simulate tipping
         local rotX = totalRotation * t
         SetEntityRotation(obj, rotX, 0.0, tree.heading, 2, true)
 
         Wait(waitPerStep)
     end
 
-    -- Stop dust
-    if dustFx then
-        StopParticleFxLooped(dustFx, false)
-    end
-
-    -- Play thud sound at impact
     local impactX = tree.x + forwardX * fallDistance
     local impactY = tree.y + forwardY * fallDistance
+
     Citizen.InvokeNative(0xCCE219C922737BFA, "TREE_FALL_LAND", impactX, impactY, tree.z, 0, 0, 0, true, 0)
 
-    -- Load end model
     local endHash = GetHashKey(endModel)
     RequestModel(endHash)
     while not HasModelLoaded(endHash) do Wait(10) end
 
-    -- Swap to fallen-end model at final position
     DeleteObject(obj)
 
     local fallen = CreateObjectNoOffset(
@@ -284,25 +255,22 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
     SetEntityHeading(fallen, tree.heading)
     FreezeEntityPosition(fallen, true)
 
-    -- Keep fallen tree for a few seconds, then remove
     Wait(5000)
     DeleteObject(fallen)
 end)
 
 --========================================================--
---  DEBUG: TEST FALL COMMAND (SAFE TO REMOVE LATER)
+--  DEBUG: TEST FALL COMMAND
 --========================================================--
 RegisterCommand("testfall", function()
     local ped = PlayerPedId()
     local pcoords = GetEntityCoords(ped)
 
-    -- Find nearest tree
-    local nearestId, nearestTree
+    local nearestId
     for id, tree in pairs(Config.Trees) do
         local dist = #(pcoords - vector3(tree.x, tree.y, tree.z))
         if dist < 10.0 then
             nearestId = id
-            nearestTree = tree
             break
         end
     end
@@ -312,6 +280,5 @@ RegisterCommand("testfall", function()
         return
     end
 
-    -- Trigger fall locally
     TriggerEvent("jims-lumberjack:treeFalling", nearestId)
 end)
