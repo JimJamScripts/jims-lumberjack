@@ -215,12 +215,12 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
 
     -- Animate fall
     local duration = 1200
-    local steps = 30
+    local steps = 90
     local waitPerStep = math.floor(duration / steps)
     local totalRotation = 80.0
 
     for i = 1, steps do
-        local t = i / steps
+        local t = (i / steps) ^ 1.4 -- ease-in curve
 
         local curDist = fallDistance * t
         local newX = tree.x + forwardX * curDist
