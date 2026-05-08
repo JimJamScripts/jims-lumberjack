@@ -3,6 +3,7 @@
 --========================================================--
 
 local data = LumberServer.GetData()
+
 --========================================================--
 --  SEND TREES TO A SINGLE CLIENT ON REQUEST
 --========================================================--
@@ -52,6 +53,12 @@ RegisterNetEvent("jims-lumberjack:treeChopped", function(treeId)
         return
     end
 
+    --========================================================--
+    --  NEW: TRIGGER CLIENT FALLING ANIMATION
+    --  This syncs the fall to ALL players exactly like the video.
+    --========================================================--
+    TriggerClientEvent("jims-lumberjack:treeFalling", -1, treeId)
+
     -- Mark tree as chopped
     tree.state = "cooldown"
     tree.respawn = os.time() + Config.TreeRespawnTime
@@ -64,7 +71,9 @@ RegisterNetEvent("jims-lumberjack:treeChopped", function(treeId)
     SaveTrees()
     SyncTrees()
 
-    -- Respawn timer
+    --========================================================--
+    --  RESPAWN TIMER
+    --========================================================--
     CreateThread(function()
         Wait(Config.TreeRespawnTime * 1000)
 

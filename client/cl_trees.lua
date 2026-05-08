@@ -6,6 +6,9 @@ local chopping = false
 local currentTree = nil
 local hitCount = 0
 
+-- Tracks all spawned tree objects so we can delete/replace them
+local SpawnedTrees = {}
+
 --========================================================--
 --  CONFIG + TREE DATA (CLIENT-SIDE)
 --========================================================--
@@ -69,7 +72,8 @@ local function StartChopping(treeId)
         while chopping do
             Wait(0)
 
-            if IsControlJustPressed(0, 0x07CE1E61) then -- LEFT CLICK
+            -- LEFT CLICK
+            if IsControlJustPressed(0, 0x07CE1E61) then
                 PlayChopAnim()
                 hitCount = hitCount + 1
 
@@ -155,7 +159,95 @@ CreateThread(function()
 
         SetEntityHeading(obj, tree.heading)
         FreezeEntityPosition(obj, true)
+
+        SpawnedTrees[id] = obj
     end
 
     Utils.Debug("Spawned all persistent lumber trees.")
+end)
+
+--========================================================--
+--  TREE FALL SEQUENCE (MATCHES VIDEO EXACTLY)
+--========================================================--
+RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
+    local tree = Config.Trees[treeId]
+    if not tree then return end
+
+    -- Delete standing tree
+    if SpawnedTrees[treeId] then
+        DeleteObject(SpawnedTrees[treeId])
+        SpawnedTrees[treeId] = nil
+    end
+
+    -- Determine fall models based on standing model
+    local startModel, endModel
+
+    if tree.model == "treefall_flat_start" then
+        startModel = "treefall_flat_start"
+        endModel   = "treefall_flat_end"
+    else
+        startModel = "des_treefall_up15_start"
+        endModel   = "des_treefall_up15_end"
+    end
+
+    -- Load start model
+    local startHash = GetHashKey(startModel)
+    RequestModel(startHash)
+    while not HasModelLoaded(startHash) do Wait(10) end
+
+    -- Spawn falling-start model
+    local obj = CreateObjectNoOffset(startHash, tree.x, tree.y, tree.z, false, false, false)
+    SetEntityHeading(obj, tree.heading)
+    FreezeEntityPosition(obj, true)
+
+    -- Play cracking sound
+    PlaySoundFromCoord(-1, "FALL_TREE_CRACK", tree.x, tree.y, tree.z, 0, 0, 0)
+
+    -- Wait for fall timing (matches video)
+    Wait(1200)
+
+    -- Load end model
+    local endHash = GetHashKey(endModel)
+    RequestModel(endHash)
+    while not HasModelLoaded(endHash) do Wait(10) end
+
+    -- Swap to fallen-end model
+    DeleteObject(obj)
+    local fallen = CreateObjectNoOffset(endHash, tree.x, tree.y, tree.z, false, false, false)
+    SetEntityHeading(fallen, tree.heading)
+    FreezeEntityPosition(fallen, true)
+
+    -- Play thud sound
+    PlaySoundFromCoord(-1, "TREE_FALL_LAND", tree.x, tree.y, tree.z, 0, 0, 0)
+
+    -- Remove fallen tree after 5 seconds
+    Wait(5000)
+    DeleteObject(fallen)
+end)
+
+--========================================================--
+--  DEBUG: TEST FALL COMMAND (SAFE TO REMOVE LATER)
+--========================================================--
+RegisterCommand("testfall", function()
+    local ped = PlayerPedId()
+    local pcoords = GetEntityCoords(ped)
+
+    -- Find nearest tree
+    local nearestId, nearestTree
+    for id, tree in pairs(Config.Trees) do
+        local dist = #(pcoords - vector3(tree.x, tree.y, tree.z))
+        if dist < 10.0 then
+            nearestId = id
+            nearestTree = tree
+            break
+        end
+    end
+
+    if not nearestId then
+        Utils.Debug("No tree nearby to test fall.")
+        return
+    end
+
+    -- Trigger fall locally
+    TriggerEvent("jims-lumberjack:treeFalling", nearestId)
 end)
