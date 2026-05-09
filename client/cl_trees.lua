@@ -47,7 +47,6 @@ local function SpawnStump(treeId, tree)
     SetEntityHeading(stump, tree.heading or 0.0)
     SetEntityAlpha(stump, 0, false)
     SetEntityCollision(stump, false, false)
-    SetEntityScale(stump, 0.01)
 
     StumpEntities[treeId] = stump
 end
