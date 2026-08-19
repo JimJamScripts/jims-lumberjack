@@ -36,8 +36,8 @@ end
 RegisterNetEvent("jims-lumberjack:treeChopped", function(treeId)
     local src = source
 
-    -- Permission check (updated)
-    if not Permissions.Require(src, "Processing") then return end
+    -- Correct permission check
+    if not Permissions:HasAccess(LumberServer.GetRank(src), "Processing") then return end
 
     -- Validate tree
     if not TreeExists(treeId) then
@@ -62,7 +62,7 @@ RegisterNetEvent("jims-lumberjack:treeChopped", function(treeId)
     tree.state = "cooldown"
     tree.respawn = os.time() + Config.TreeRespawnTime
 
-    -- Give reward (VORP-native via giveItem event)
+    -- Give reward (VORP-native)
     TriggerEvent("jims-lumberjack:giveItem", src, "hardwood", 1)
 
     -- Save + sync

@@ -28,8 +28,8 @@ end
 RegisterNetEvent("jims-lumberjack:sapCollected", function(bucketId)
     local src = source
 
-    -- Permission check (updated to use Permissions)
-    if not Permissions.Require(src, "Processing") then return end
+    -- Correct permission check
+    if not Permissions:HasAccess(LumberServer.GetRank(src), "Processing") then return end
 
     -- Validate bucket
     if not BucketExists(bucketId) then
@@ -47,10 +47,10 @@ RegisterNetEvent("jims-lumberjack:sapCollected", function(bucketId)
 
     -- Mark bucket as collected
     bucket.state = "cooldown"
-    bucket.respawn = os.time() + Config.SapRespawnTime
+    bucket.respawn = os.time() + Config.SapBucketRespawn
 
     -- Give reward (VORP-native via jims-lumberjack:giveItem)
-    local reward = 1 -- 1 raw sap per bucket
+    local reward = Config.SapBucketReward or 1
     TriggerEvent("jims-lumberjack:giveItem", src, "raw_sap", reward)
 
     -- Save + sync
@@ -59,7 +59,7 @@ RegisterNetEvent("jims-lumberjack:sapCollected", function(bucketId)
 
     -- Respawn timer
     CreateThread(function()
-        Wait(Config.SapRespawnTime * 1000)
+        Wait(Config.SapBucketRespawn * 1000)
 
         bucket.state = "ready"
         bucket.respawn = nil

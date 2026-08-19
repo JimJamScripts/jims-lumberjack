@@ -5,7 +5,7 @@
 local data = LumberServer.GetData()
 
 -- VORP Core
-local VORPcore = exports.vorp_core:getCore()
+local VORPcore = exports.vorp_core:GetCore()
 
 -- Wagon module (now properly exported from sv_wagons.lua)
 local Wagons = exports['jims-lumberjack']:GetWagonModule()

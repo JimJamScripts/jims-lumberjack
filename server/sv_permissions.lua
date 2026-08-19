@@ -2,7 +2,6 @@
 --  JIMS LUMBERJACK - SERVER PERMISSIONS (VORP READY)
 --========================================================--
 
-local PermissionsConfig = require("server.sv_permissions_config")
 local VORPcore = exports.vorp_core:getCore()
 
 Permissions = {}

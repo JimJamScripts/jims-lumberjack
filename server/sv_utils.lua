@@ -34,7 +34,7 @@ end
 --  GET PLAYER IDENTIFIER (VORP CHARACTER)
 --========================================================--
 function Utils.GetIdentifier(src)
-    local VORPcore = exports.vorp_core:getCore()
+    local VORPcore = exports.vorp_core:GetCore()
     local user = VORPcore.getUser(src)
     if not user then return nil end
 

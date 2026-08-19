@@ -5,7 +5,7 @@
 local data = LumberServer.GetData()
 
 -- VORP Core + Inventory
-local VORPcore = exports.vorp_core:getCore()
+local VORPcore = exports.vorp_core:GetCore()
 local VORPInv   = exports.vorp_inventory:vorp_inventoryApi()
 
 --========================================================--

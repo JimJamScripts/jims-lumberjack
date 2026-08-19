@@ -5,7 +5,7 @@
 local data = LumberServer.GetData()
 
 -- VORP Core
-local VORPcore = exports.vorp_core:getCore()
+local VORPcore = exports.vorp_core:GetCore()
 
 --========================================================--
 --  SAVE HELPERS

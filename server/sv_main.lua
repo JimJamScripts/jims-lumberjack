@@ -47,11 +47,17 @@ local function SaveAllData()
 end
 
 --========================================================--
---  GET PLAYER RANK
+--  GET PLAYER RANK (VORP)
 --========================================================--
 local function GetPlayerRank(src)
-    -- VORP uses charidentifier, not license/steam identifiers
-    local charId = exports.vorp_core:getCore():getUser(src).getUsedCharacter().charIdentifier
+    local VORPcore = exports.vorp_core:GetCore()
+    local user = VORPcore.getUser(src)
+    if not user then return Permissions.Ranks.CIVILIAN end
+
+    local char = user.getUsedCharacter()
+    if not char then return Permissions.Ranks.CIVILIAN end
+
+    local charId = char.charIdentifier
     if not charId then return Permissions.Ranks.CIVILIAN end
 
     return businessData.employees[charId] and businessData.employees[charId].rank or 0
