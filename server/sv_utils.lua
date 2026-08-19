@@ -1,5 +1,5 @@
 --========================================================--
---  JIMS LUMBERJACK - SERVER UTILITY FUNCTIONS
+--  JIMS LUMBERJACK - SERVER UTILITY FUNCTIONS (VORP READY)
 --========================================================--
 
 Utils = {}
@@ -31,15 +31,17 @@ function Utils.SaveJSON(path, data)
 end
 
 --========================================================--
---  GET PLAYER IDENTIFIER
+--  GET PLAYER IDENTIFIER (VORP CHARACTER)
 --========================================================--
 function Utils.GetIdentifier(src)
-    for _, id in ipairs(GetPlayerIdentifiers(src)) do
-        if id:sub(1, 8) == "license:" then
-            return id
-        end
-    end
-    return nil
+    local VORPcore = exports.vorp_core:getCore()
+    local user = VORPcore.getUser(src)
+    if not user then return nil end
+
+    local char = user.getUsedCharacter()
+    if not char then return nil end
+
+    return char.charIdentifier
 end
 
 --========================================================--

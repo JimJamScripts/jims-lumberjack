@@ -75,16 +75,16 @@ end)
 --  RECEIVE PLAYER RANK FROM SERVER
 --========================================================--
 RegisterNetEvent("jims-lumberjack:setRank", function(rank)
-    PlayerRank = rank
-    Utils.Debug("Rank updated: " .. tostring(rank))
+    PlayerRank = rank or 0
+    Utils.Debug("Rank updated: " .. tostring(PlayerRank))
 end)
 
 --========================================================--
 --  RECEIVE BUSINESS DATA FROM SERVER
 --========================================================--
 RegisterNetEvent("jims-lumberjack:updateBusinessData", function(data)
-    BusinessData = data
-    Config.Trees = data.trees or {}
+    BusinessData = data or {}
+    Config.Trees = BusinessData.trees or {}
     Utils.Debug("Business data synced. Trees loaded: " .. tostring(#Config.Trees))
 end)
 

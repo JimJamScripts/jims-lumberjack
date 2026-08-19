@@ -52,6 +52,13 @@ RegisterNUICallback("officeAction", function(data, cb)
 end)
 
 --========================================================--
+--  CLIENT PERMISSION CHECK
+--========================================================--
+local function HasAccess(permission)
+    return Permissions:HasAccess(GetLumberRank(), permission)
+end
+
+--========================================================--
 --  MAIN INTERACTION LOOP
 --========================================================--
 CreateThread(function()
@@ -59,7 +66,7 @@ CreateThread(function()
         Wait(0)
 
         -- Only Owner + Foreman can open office
-        if not Permissions:HasAccess(GetLumberRank(), "OfficeMenu") then
+        if not HasAccess("OfficeMenu") then
             Wait(1000)
             goto continue
         end

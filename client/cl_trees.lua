@@ -7,13 +7,13 @@ local currentTree = nil
 local hitCount = 0
 
 local SpawnedTrees = {}
-local StumpEntities = {} -- NEW: per-tree stump anchors
+local StumpEntities = {}
 
 Config = Config or {}
 Config.Trees = {}
 
 local STUMP_MODEL = `p_bottle001x`
-local STUMP_Z_OFFSET = 0.20 -- sinks 4–8 inches like your trees
+local STUMP_Z_OFFSET = 0.20
 
 --========================================================--
 --  INTERNAL HELPERS
@@ -83,8 +83,6 @@ local function DeleteStandingTree(treeId)
 end
 
 local function RefreshTreeVisual(treeId, tree)
-    -- ready  -> standing tree, no stump
-    -- cooldown -> stump only
     if tree.state == "ready" then
         DeleteStump(treeId)
         SpawnStandingTree(treeId, tree)
@@ -101,7 +99,6 @@ RegisterNetEvent("jims-lumberjack:updateTrees", function(trees)
     Config.Trees = trees or {}
     Utils.Debug("Tree states updated. Received " .. tostring(#Config.Trees) .. " trees.")
 
-    -- Refresh visuals for all trees on update
     for id, tree in pairs(Config.Trees) do
         RefreshTreeVisual(id, tree)
     end
@@ -173,13 +170,20 @@ local function StartChopping(treeId)
 end
 
 --========================================================--
+--  CLIENT PERMISSION CHECK
+--========================================================--
+local function HasAccess(permission)
+    return Permissions:HasAccess(GetLumberRank(), permission)
+end
+
+--========================================================--
 --  MAIN LOOP
 --========================================================--
 CreateThread(function()
     while true do
         Wait(0)
 
-        if not Permissions:HasAccess(GetLumberRank(), "Processing") then
+        if not HasAccess("Processing") then
             Wait(1000)
             goto continue
         end
@@ -217,13 +221,12 @@ CreateThread(function()
 end)
 
 --========================================================--
---  TREE FALL SEQUENCE (REALISTIC + STUMP PIN)
+--  TREE FALL SEQUENCE
 --========================================================--
 RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
     local tree = Config.Trees[treeId]
     if not tree then return end
 
-    -- Delete standing tree, ensure stump exists
     DeleteStandingTree(treeId)
     SpawnStump(treeId, tree)
 
@@ -245,23 +248,19 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
 
     local fallDistance = 2.0
 
-    -- Spawn falling-start model
     local obj = CreateObjectNoOffset(startHash, tree.x, tree.y, tree.z, false, false, false)
     SetEntityHeading(obj, tree.heading)
     FreezeEntityPosition(obj, false)
 
-    -- Slight pre‑fall wobble (subtle)
     for i = 1, 10 do
         local wobble = math.sin(i * 0.3) * 1.2
         SetEntityRotation(obj, wobble, 0.0, tree.heading, 2, true)
         Wait(15)
     end
 
-    -- Delayed crack (feels weighty)
     Citizen.InvokeNative(0xCCE219C922737BFA, "FALL_TREE_CRACK", tree.x, tree.y, tree.z, 0,0,0,true,0)
     Wait(150)
 
-    -- Smooth fall
     local duration = 1400
     local steps = 110
     local waitPerStep = math.floor(duration / steps)
@@ -282,13 +281,11 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
         Wait(waitPerStep)
     end
 
-    -- Impact
     local impactX = tree.x + forwardX * fallDistance
     local impactY = tree.y + forwardY * fallDistance
 
     Citizen.InvokeNative(0xCCE219C922737BFA, "TREE_FALL_LAND", impactX, impactY, tree.z, 0,0,0,true,0)
 
-    -- Load end model
     local endHash = GetHashKey(endModel)
     if not LoadModel(endHash) then
         DeleteObject(obj)
@@ -297,7 +294,6 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
 
     DeleteObject(obj)
 
-    -- Alignment tuning (your values)
     local endOffsetX = -0.8
     local endOffsetY = -0.8
 
@@ -313,10 +309,6 @@ RegisterNetEvent("jims-lumberjack:treeFalling", function(treeId)
     SetEntityHeading(fallen, tree.heading)
     FreezeEntityPosition(fallen, true)
 
-    -- NOTE: we do NOT delete the stump here.
-    -- Stump stays until server flips state back to "ready" and updateTrees refreshes visuals.
-
-    -- Optional: if you want the fallen trunk to vanish after some time:
     Wait(5000)
     DeleteObject(fallen)
 end)

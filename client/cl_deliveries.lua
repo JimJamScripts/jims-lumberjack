@@ -5,7 +5,9 @@
 local activeDelivery = nil
 local dropoffNPC = nil
 local dropoffBlip = nil
-local interacting = false
+
+-- Cached client rank
+local clientRank = 0
 
 --========================================================--
 --  SPAWN DROPOFF NPC
@@ -80,20 +82,30 @@ local function FinishDelivery()
 end
 
 --========================================================--
+--  CLIENT PERMISSION CHECK
+--========================================================--
+local function HasAccess(permission)
+    return Permissions:HasAccess(clientRank, permission)
+end
+
+--========================================================--
 --  MAIN INTERACTION LOOP
 --========================================================--
 CreateThread(function()
     while true do
         Wait(0)
 
-        if not Permissions:HasAccess(GetLumberRank(), "Deliveries") then
+        -- Updated permission check
+        if not HasAccess("Deliveries") then
             Wait(1000)
             goto continue
         end
 
         -- START DELIVERY
         if not activeDelivery then
-            local wagon = GetClosestVehicle(GetEntityCoords(PlayerPedId()), 6.0, 0, 70)
+            local ped = PlayerPedId()
+            local wagon = GetClosestVehicle(GetEntityCoords(ped), 6.0, 0, 70)
+
             if wagon ~= 0 and DoesEntityExist(wagon) then
                 SetTextScale(0.35, 0.35)
                 SetTextColor(255, 255, 255, 215)
@@ -130,4 +142,11 @@ CreateThread(function()
 
         ::continue::
     end
+end)
+
+--========================================================--
+--  RANK SYNC
+--========================================================--
+RegisterNetEvent("jims-lumberjack:setRank", function(rank)
+    clientRank = rank or 0
 end)

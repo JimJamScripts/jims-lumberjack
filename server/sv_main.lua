@@ -1,5 +1,5 @@
 --========================================================--
---  JIMS LUMBERJACK - SERVER MAIN
+--  JIMS LUMBERJACK - SERVER MAIN (VORP READY)
 --========================================================--
 
 local businessData = {
@@ -50,10 +50,11 @@ end
 --  GET PLAYER RANK
 --========================================================--
 local function GetPlayerRank(src)
-    local identifier = Utils.GetIdentifier(src)
-    if not identifier then return Permissions.Ranks.CIVILIAN end
+    -- VORP uses charidentifier, not license/steam identifiers
+    local charId = exports.vorp_core:getCore():getUser(src).getUsedCharacter().charIdentifier
+    if not charId then return Permissions.Ranks.CIVILIAN end
 
-    return businessData.employees[identifier] and businessData.employees[identifier].rank or 0
+    return businessData.employees[charId] and businessData.employees[charId].rank or 0
 end
 
 --========================================================--

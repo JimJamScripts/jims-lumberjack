@@ -57,13 +57,20 @@ local function StartCollecting(bucketId)
 end
 
 --========================================================--
+--  CLIENT PERMISSION CHECK
+--========================================================--
+local function HasAccess(permission)
+    return Permissions:HasAccess(GetLumberRank(), permission)
+end
+
+--========================================================--
 --  MAIN INTERACTION LOOP
 --========================================================--
 CreateThread(function()
     while true do
         Wait(0)
 
-        if not Permissions:HasAccess(GetLumberRank(), "Processing") then
+        if not HasAccess("Processing") then
             Wait(1000)
             goto continue
         end

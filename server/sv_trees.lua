@@ -1,5 +1,5 @@
 --========================================================--
---  JIMS LUMBERJACK - SERVER TREE SYSTEM
+--  JIMS LUMBERJACK - SERVER TREE SYSTEM (VORP READY)
 --========================================================--
 
 local data = LumberServer.GetData()
@@ -36,8 +36,8 @@ end
 RegisterNetEvent("jims-lumberjack:treeChopped", function(treeId)
     local src = source
 
-    -- Permission check
-    if not LumberPerms.Require(src, "Processing") then return end
+    -- Permission check (updated)
+    if not Permissions.Require(src, "Processing") then return end
 
     -- Validate tree
     if not TreeExists(treeId) then
@@ -54,8 +54,7 @@ RegisterNetEvent("jims-lumberjack:treeChopped", function(treeId)
     end
 
     --========================================================--
-    --  NEW: TRIGGER CLIENT FALLING ANIMATION
-    --  This syncs the fall to ALL players exactly like the video.
+    --  TRIGGER CLIENT FALLING ANIMATION (SYNC TO ALL)
     --========================================================--
     TriggerClientEvent("jims-lumberjack:treeFalling", -1, treeId)
 
@@ -63,9 +62,8 @@ RegisterNetEvent("jims-lumberjack:treeChopped", function(treeId)
     tree.state = "cooldown"
     tree.respawn = os.time() + Config.TreeRespawnTime
 
-    -- Give reward
-    local reward = 1 -- 1 hardwood per tree
-    TriggerEvent("jims-lumberjack:giveItem", src, "hardwood", reward)
+    -- Give reward (VORP-native via giveItem event)
+    TriggerEvent("jims-lumberjack:giveItem", src, "hardwood", 1)
 
     -- Save + sync
     SaveTrees()

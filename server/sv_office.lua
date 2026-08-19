@@ -1,8 +1,11 @@
 --========================================================--
---  JIMS LUMBERJACK - SERVER OFFICE SYSTEM
+--  JIMS LUMBERJACK - SERVER OFFICE SYSTEM (VORP READY)
 --========================================================--
 
 local data = LumberServer.GetData()
+
+-- VORP Core
+local VORPcore = exports.vorp_core:getCore()
 
 --========================================================--
 --  SAVE HELPERS
@@ -48,8 +51,14 @@ RegisterNetEvent("jims-lumberjack:officeAction", function(dataIn)
     local target = tonumber(dataIn.target) or 0
     local rank = LumberServer.GetRank(src)
 
-    local identifier = Utils.GetIdentifier(target)
-    if not identifier then return end
+    -- VORP character identifier
+    local user = VORPcore.getUser(target)
+    if not user then return end
+
+    local char = user.getUsedCharacter()
+    if not char then return end
+
+    local identifier = char.charIdentifier
 
     --========================================================--
     --  HIRE EMPLOYEE
@@ -58,10 +67,7 @@ RegisterNetEvent("jims-lumberjack:officeAction", function(dataIn)
         if not Permissions:HasAccess(rank, "OfficeManage") then return end
 
         if data.employees[identifier] then
-            TriggerClientEvent("chat:addMessage", src, {
-                color = {255, 50, 50},
-                args = {"Lumber Co.", "This player is already employed."}
-            })
+            VORPcore.NotifyRightTip(src, "This player is already employed.", 3000)
             return
         end
 
@@ -154,11 +160,8 @@ RegisterNetEvent("jims-lumberjack:officeAction", function(dataIn)
         local cost = (data.upgrades[upgrade].level + 1) * 500
 
         -- Check business balance
-        if data.shopfront.balance < cost then
-            TriggerClientEvent("chat:addMessage", src, {
-                color = {255, 50, 50},
-                args = {"Lumber Co.", "Not enough business funds."}
-            })
+        if (data.shopfront.balance or 0) < cost then
+            VORPcore.NotifyRightTip(src, "Not enough business funds.", 3000)
             return
         end
 

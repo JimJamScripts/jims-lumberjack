@@ -1,5 +1,5 @@
 --========================================================--
---  JIMS LUMBERJACK - PERMISSION CONFIG
+--  JIMS LUMBERJACK - PERMISSION CONFIG (VORP READY)
 --========================================================--
 
 Permissions = {}
@@ -55,6 +55,20 @@ function Permissions:HasAccess(rank, permission)
     end
 
     return false
+end
+
+--========================================================--
+--  GET RANK NAME (SAFE)
+--========================================================--
+function Permissions:GetRankName(rank)
+    return self.RankNames[rank] or "Unknown"
+end
+
+--========================================================--
+--  VALIDATE RANK
+--========================================================--
+function Permissions:IsValidRank(rank)
+    return self.RankNames[rank] ~= nil
 end
 
 return Permissions

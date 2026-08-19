@@ -1,8 +1,12 @@
 --========================================================--
---  JIMS LUMBERJACK - SERVER PROCESSING SYSTEM
+--  JIMS LUMBERJACK - SERVER PROCESSING SYSTEM (VORP READY)
 --========================================================--
 
 local data = LumberServer.GetData()
+
+-- VORP Core + Inventory
+local VORPcore = exports.vorp_core:getCore()
+local VORPInv   = exports.vorp_inventory:vorp_inventoryApi()
 
 --========================================================--
 --  SAVE + SYNC HELPERS
@@ -55,7 +59,7 @@ RegisterNetEvent("jims-lumberjack:processItem", function(stationId)
     local src = source
 
     -- Permission check
-    if not LumberPerms.Require(src, "Processing") then return end
+    if not Permissions.Require(src, "Processing") then return end
 
     -- Validate station
     if not StationExists(stationId) then
@@ -71,26 +75,23 @@ RegisterNetEvent("jims-lumberjack:processItem", function(stationId)
         return
     end
 
-    -- Check player has input item
-    local hasItem = exports.inventory:HasItem(src, recipe.input, 1)
-    if not hasItem then
-        TriggerClientEvent("chat:addMessage", src, {
-            color = {255, 50, 50},
-            args = {"Lumber Co.", "You don't have the required materials."}
-        })
+    -- Check player inventory (VORP)
+    local count = VORPInv.getItemCount(src, recipe.input)
+    if not count or count < 1 then
+        VORPcore.NotifyRightTip(src, "You don't have the required materials.", 3000)
         return
     end
 
-    -- Remove input
-    exports.inventory:RemoveItem(src, recipe.input, 1)
+    -- Remove input item
+    VORPInv.subItem(src, recipe.input, 1)
 
-    -- Add output
-    exports.inventory:AddItem(src, recipe.output, recipe.amount)
+    -- Add output item
+    VORPInv.addItem(src, recipe.output, recipe.amount)
 
     -- Log to ledger
     table.insert(data.ledger, {
         time = os.time(),
-        player = Utils.GetIdentifier(src),
+        player = VORPcore.getUser(src).getUsedCharacter().charIdentifier,
         action = "processed",
         input = recipe.input,
         output = recipe.output

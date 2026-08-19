@@ -1,10 +1,14 @@
 --========================================================--
---  JIMS LUMBERJACK - CLIENT BLIPS
+--  JIMS LUMBERJACK - CLIENT BLIPS 
 --========================================================--
 
 local treeBlips = {}
 local sapBlips = {}
 local shopfrontBlip = nil
+
+-- Cached client-side rank + business data
+local clientRank = 0
+local businessData = {}
 
 --========================================================--
 --  CLEAR BLIPS
@@ -35,18 +39,24 @@ local function ClearShopfrontBlip()
 end
 
 --========================================================--
+--  PERMISSION CHECK (CLIENT-SIDE)
+--========================================================--
+local function HasAccess(permission)
+    return Permissions:HasAccess(clientRank, permission)
+end
+
+--========================================================--
 --  CREATE TREE BLIPS (EMPLOYEES ONLY)
 --========================================================--
 local function CreateTreeBlips()
     ClearAllTreeBlips()
 
     if not Config.Blips.ShowTreesToEmployees then return end
-    if not Permissions:HasAccess(GetLumberRank(), "TreeBlips") then return end
+    if not HasAccess("TreeBlips") then return end
 
-    local data = GetBusinessData()
-    if not data or not data.trees then return end
+    if not businessData or not businessData.trees then return end
 
-    for _, tree in pairs(data.trees) do
+    for _, tree in pairs(businessData.trees) do
         local blip = N_0x554d9d53f696d002(1664425300, tree.x, tree.y, tree.z)
         SetBlipSprite(blip, Config.TreeBlipSprite, true)
         SetBlipScale(blip, 0.2)
@@ -62,12 +72,11 @@ local function CreateSapBlips()
     ClearAllSapBlips()
 
     if not Config.Blips.ShowSapToEmployees then return end
-    if not Permissions:HasAccess(GetLumberRank(), "SapBlips") then return end
+    if not HasAccess("SapBlips") then return end
 
-    local data = GetBusinessData()
-    if not data or not data.sapBuckets then return end
+    if not businessData or not businessData.sapBuckets then return end
 
-    for _, bucket in pairs(data.sapBuckets) do
+    for _, bucket in pairs(businessData.sapBuckets) do
         local blip = N_0x554d9d53f696d002(1664425300, bucket.x, bucket.y, bucket.z)
         SetBlipSprite(blip, Config.SapBlipSprite, true)
         SetBlipScale(blip, 0.2)
@@ -83,17 +92,15 @@ local function CreateShopfrontBlip()
     ClearShopfrontBlip()
 
     if not Config.Blips.ShowShopfrontToCivs then return end
+    if not businessData or not businessData.shopfront or not businessData.shopfront.coords then return end
 
-    local data = GetBusinessData()
-    if not data or not data.shopfront or not data.shopfront.coords then return end
-
-    local c = data.shopfront.coords
+    local c = businessData.shopfront.coords
 
     shopfrontBlip = N_0x554d9d53f696d002(1664425300, c.x, c.y, c.z)
-    SetBlipSprite(shopfrontBlip, 1865988756, true) -- store icon
+    SetBlipSprite(shopfrontBlip, 1865988756, true)
     SetBlipScale(shopfrontBlip, 0.3)
     SetBlipColour(shopfrontBlip, 0)
-    SetBlipName(shopfrontBlip, data.shopfront.name or "Lumber Shop")
+    SetBlipName(shopfrontBlip, businessData.shopfront.name or "Lumber Shop")
 end
 
 --========================================================--
@@ -106,16 +113,18 @@ local function RefreshAllBlips()
 end
 
 --========================================================--
---  WHEN BUSINESS DATA UPDATES, REFRESH BLIPS
+--  BUSINESS DATA SYNC
 --========================================================--
 RegisterNetEvent("jims-lumberjack:updateBusinessData", function(data)
+    businessData = data or {}
     RefreshAllBlips()
 end)
 
 --========================================================--
---  WHEN PLAYER RANK CHANGES, REFRESH BLIPS
+--  RANK SYNC
 --========================================================--
 RegisterNetEvent("jims-lumberjack:setRank", function(rank)
+    clientRank = rank or 0
     RefreshAllBlips()
 end)
 

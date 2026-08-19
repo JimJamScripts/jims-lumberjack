@@ -1,9 +1,14 @@
 --========================================================--
---  JIMS LUMBERJACK - SERVER DELIVERY SYSTEM
+--  JIMS LUMBERJACK - SERVER DELIVERY SYSTEM (VORP READY)
 --========================================================--
 
 local data = LumberServer.GetData()
-local Wagons = exports['jims-lumberjack']:GetWagonModule() -- Provided by sv_wagons.lua
+
+-- VORP Core
+local VORPcore = exports.vorp_core:getCore()
+
+-- Wagon module (now properly exported from sv_wagons.lua)
+local Wagons = exports['jims-lumberjack']:GetWagonModule()
 
 --========================================================--
 --  DELIVERY ROUTES
@@ -36,15 +41,13 @@ RegisterNetEvent("jims-lumberjack:startDelivery", function(wagonNet)
     local wagon = Wagons.Get(wagonNet)
     if not wagon then
         print(("^1[ERROR]^0 Player %s attempted delivery with unregistered wagon %s"):format(src, wagonNet))
+        VORPcore.NotifyRightTip(src, "This wagon is not registered.", 3000)
         return
     end
 
     -- Must have cargo
     if wagon.cargo <= 0 then
-        TriggerClientEvent("chat:addMessage", src, {
-            color = {255, 50, 50},
-            args = {"Lumber Co.", "Your wagon is empty."}
-        })
+        VORPcore.NotifyRightTip(src, "Your wagon is empty.", 3000)
         return
     end
 
@@ -74,6 +77,7 @@ RegisterNetEvent("jims-lumberjack:finishDelivery", function(routeIndex)
     local route = Routes[routeIndex]
     if not route then
         print(("^1[ERROR]^0 Player %s attempted invalid delivery route %s"):format(src, routeIndex))
+        VORPcore.NotifyRightTip(src, "Invalid delivery route.", 3000)
         return
     end
 
@@ -81,11 +85,9 @@ RegisterNetEvent("jims-lumberjack:finishDelivery", function(routeIndex)
     local ped = GetPlayerPed(src)
     local coords = GetEntityCoords(ped)
     local wagonEntity = GetClosestVehicle(coords.x, coords.y, coords.z, 6.0, 0, 70)
+
     if wagonEntity == 0 then
-        TriggerClientEvent("chat:addMessage", src, {
-            color = {255, 50, 50},
-            args = {"Lumber Co.", "You must bring the wagon to the drop-off point."}
-        })
+        VORPcore.NotifyRightTip(src, "Bring the wagon to the drop-off point.", 3000)
         return
     end
 
@@ -94,15 +96,13 @@ RegisterNetEvent("jims-lumberjack:finishDelivery", function(routeIndex)
 
     if not wagon then
         print(("^1[ERROR]^0 Player %s attempted delivery with unregistered wagon %s"):format(src, wagonNet))
+        VORPcore.NotifyRightTip(src, "This wagon is not registered.", 3000)
         return
     end
 
     -- Must have cargo
     if wagon.cargo <= 0 then
-        TriggerClientEvent("chat:addMessage", src, {
-            color = {255, 50, 50},
-            args = {"Lumber Co.", "Your wagon is empty."}
-        })
+        VORPcore.NotifyRightTip(src, "Your wagon is empty.", 3000)
         return
     end
 
@@ -130,10 +130,7 @@ RegisterNetEvent("jims-lumberjack:finishDelivery", function(routeIndex)
         :format(src, wagon.cargo, payout, route.name))
 
     -- Notify player
-    TriggerClientEvent("chat:addMessage", src, {
-        color = {50, 200, 50},
-        args = {"Lumber Co.", ("Delivery complete! Earned $%s."):format(payout)}
-    })
+    VORPcore.NotifyRightTip(src, ("Delivery complete! Earned $%s."):format(payout), 4000)
 end)
 
 --========================================================--

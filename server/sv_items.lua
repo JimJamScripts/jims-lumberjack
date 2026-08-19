@@ -1,14 +1,16 @@
 --========================================================--
---  JIMS LUMBERJACK - SERVER ITEM SYSTEM
+--  JIMS LUMBERJACK - SERVER ITEM SYSTEM (VORP READY)
 --========================================================--
 
 local data = LumberServer.GetData()
 
+-- VORP Core + Inventory
+local VORPcore = exports.vorp_core:getCore()
+local VORPInv   = exports.vorp_inventory:vorp_inventoryApi()
+
 --========================================================--
 --  ITEM DEFINITIONS
 --========================================================--
--- This table defines all items used by the lumberjack job.
--- It ensures consistency and prevents typos across modules.
 local ItemDefs = {
     hardwood        = {label = "Hardwood Log"},
     raw_sap         = {label = "Raw Sap"},
@@ -26,7 +28,7 @@ local function ItemExists(item)
 end
 
 --========================================================--
---  GIVE ITEM
+--  GIVE ITEM (VORP)
 --========================================================--
 local function GiveItem(src, item, amount)
     if not ItemExists(item) then
@@ -37,14 +39,15 @@ local function GiveItem(src, item, amount)
     amount = tonumber(amount) or 0
     if amount <= 0 then return false end
 
-    exports.inventory:AddItem(src, item, amount)
+    -- VORP Inventory Add
+    VORPInv.addItem(src, item, amount)
 
     print(("^2[ITEM]^0 Gave %sx %s to %s"):format(amount, item, src))
     return true
 end
 
 --========================================================--
---  REMOVE ITEM
+--  REMOVE ITEM (VORP)
 --========================================================--
 local function RemoveItem(src, item, amount)
     if not ItemExists(item) then
@@ -55,11 +58,14 @@ local function RemoveItem(src, item, amount)
     amount = tonumber(amount) or 0
     if amount <= 0 then return false end
 
-    if not exports.inventory:HasItem(src, item, amount) then
+    -- Check inventory count
+    local count = VORPInv.getItemCount(src, item)
+    if not count or count < amount then
         return false
     end
 
-    exports.inventory:RemoveItem(src, item, amount)
+    -- Remove item
+    VORPInv.subItem(src, item, amount)
 
     print(("^3[ITEM]^0 Removed %sx %s from %s"):format(amount, item, src))
     return true
@@ -70,10 +76,7 @@ end
 --========================================================--
 RegisterNetEvent("jims-lumberjack:giveItem", function(srcOverride, item, amount)
     local src = source
-
-    -- Allow server modules to pass a different target
     local target = srcOverride or src
-
     GiveItem(target, item, amount)
 end)
 
@@ -82,9 +85,7 @@ end)
 --========================================================--
 RegisterNetEvent("jims-lumberjack:removeItem", function(srcOverride, item, amount)
     local src = source
-
     local target = srcOverride or src
-
     RemoveItem(target, item, amount)
 end)
 

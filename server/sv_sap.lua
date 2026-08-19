@@ -1,5 +1,5 @@
 --========================================================--
---  JIMS LUMBERJACK - SERVER SAP BUCKET SYSTEM
+--  JIMS LUMBERJACK - SERVER SAP BUCKET SYSTEM (VORP READY)
 --========================================================--
 
 local data = LumberServer.GetData()
@@ -28,8 +28,8 @@ end
 RegisterNetEvent("jims-lumberjack:sapCollected", function(bucketId)
     local src = source
 
-    -- Permission check
-    if not LumberPerms.Require(src, "Processing") then return end
+    -- Permission check (updated to use Permissions)
+    if not Permissions.Require(src, "Processing") then return end
 
     -- Validate bucket
     if not BucketExists(bucketId) then
@@ -49,7 +49,7 @@ RegisterNetEvent("jims-lumberjack:sapCollected", function(bucketId)
     bucket.state = "cooldown"
     bucket.respawn = os.time() + Config.SapRespawnTime
 
-    -- Give reward
+    -- Give reward (VORP-native via jims-lumberjack:giveItem)
     local reward = 1 -- 1 raw sap per bucket
     TriggerEvent("jims-lumberjack:giveItem", src, "raw_sap", reward)
 

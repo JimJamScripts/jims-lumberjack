@@ -1,8 +1,12 @@
 --========================================================--
---  JIMS LUMBERJACK - SERVER SHOPFRONT SYSTEM
+--  JIMS LUMBERJACK - SERVER SHOPFRONT SYSTEM (VORP READY)
 --========================================================--
 
 local data = LumberServer.GetData()
+
+-- VORP Core + Inventory
+local VORPcore = exports.vorp_core:getCore()
+local VORPInv   = exports.vorp_inventory:vorp_inventoryApi()
 
 --========================================================--
 --  SAVE + SYNC HELPERS
@@ -58,28 +62,30 @@ RegisterNetEvent("jims-lumberjack:shopAction", function(dataIn)
         local entry = data.shopfront.items[item]
         local cost = entry.price * amount
 
-        if cost <= 0 then return end
+        if cost <= 0 or amount <= 0 then return end
 
         -- Check stock
         if entry.stock < amount then
-            TriggerClientEvent("chat:addMessage", src, {
-                color = {255, 50, 50},
-                args = {"Lumber Co.", "Not enough stock available."}
-            })
+            VORPcore.NotifyRightTip(src, "Not enough stock available.", 3000)
             return
         end
 
-        -- Charge player
-        if not exports.bank:RemoveMoney(src, cost) then
-            TriggerClientEvent("chat:addMessage", src, {
-                color = {255, 50, 50},
-                args = {"Lumber Co.", "You don't have enough money."}
-            })
+        -- Charge player (cash)
+        local user = VORPcore.getUser(src)
+        if not user then return end
+        local char = user.getUsedCharacter()
+        if not char then return end
+
+        local cash = char.money
+        if cash < cost then
+            VORPcore.NotifyRightTip(src, "You don't have enough money.", 3000)
             return
         end
+
+        char.removeCurrency(0, cost) -- 0 = cash
 
         -- Give item
-        exports.inventory:AddItem(src, item, amount)
+        VORPInv.addItem(src, item, amount)
 
         -- Update stock + balance
         entry.stock = entry.stock - amount
@@ -88,7 +94,7 @@ RegisterNetEvent("jims-lumberjack:shopAction", function(dataIn)
         -- Ledger
         table.insert(data.ledger, {
             time = os.time(),
-            player = Utils.GetIdentifier(src),
+            player = char.charIdentifier,
             action = "purchase",
             item = item,
             amount = amount,
@@ -108,16 +114,14 @@ RegisterNetEvent("jims-lumberjack:shopAction", function(dataIn)
         if amount <= 0 then return end
 
         -- Check player has item
-        if not exports.inventory:HasItem(src, item, amount) then
-            TriggerClientEvent("chat:addMessage", src, {
-                color = {255, 50, 50},
-                args = {"Lumber Co.", "You don't have enough of that item."}
-            })
+        local count = VORPInv.getItemCount(src, item)
+        if not count or count < amount then
+            VORPcore.NotifyRightTip(src, "You don't have enough of that item.", 3000)
             return
         end
 
         -- Remove from player
-        exports.inventory:RemoveItem(src, item, amount)
+        VORPInv.subItem(src, item, amount)
 
         -- Add to stock
         data.shopfront.items[item] = data.shopfront.items[item] or {price = 0, stock = 0}
@@ -136,10 +140,7 @@ RegisterNetEvent("jims-lumberjack:shopAction", function(dataIn)
 
         local entry = data.shopfront.items[item]
         if not entry or entry.stock < amount then
-            TriggerClientEvent("chat:addMessage", src, {
-                color = {255, 50, 50},
-                args = {"Lumber Co.", "Not enough stock available."}
-            })
+            VORPcore.NotifyRightTip(src, "Not enough stock available.", 3000)
             return
         end
 
@@ -150,7 +151,7 @@ RegisterNetEvent("jims-lumberjack:shopAction", function(dataIn)
         end
 
         -- Give to player
-        exports.inventory:AddItem(src, item, amount)
+        VORPInv.addItem(src, item, amount)
 
         SaveShopfront()
         return
@@ -178,15 +179,18 @@ RegisterNetEvent("jims-lumberjack:shopAction", function(dataIn)
         if amount <= 0 then return end
 
         if data.shopfront.balance < amount then
-            TriggerClientEvent("chat:addMessage", src, {
-                color = {255, 50, 50},
-                args = {"Lumber Co.", "Not enough money in the shop account."}
-            })
+            VORPcore.NotifyRightTip(src, "Not enough money in the shop account.", 3000)
             return
         end
 
         data.shopfront.balance = data.shopfront.balance - amount
-        exports.bank:AddMoney(src, amount)
+
+        local user = VORPcore.getUser(src)
+        if not user then return end
+        local char = user.getUsedCharacter()
+        if not char then return end
+
+        char.addCurrency(0, amount) -- 0 = cash
 
         SaveShopfront()
         return

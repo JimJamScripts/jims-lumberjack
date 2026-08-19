@@ -1,8 +1,12 @@
 --========================================================--
---  JIMS LUMBERJACK - SERVER WAGON SYSTEM
+--  JIMS LUMBERJACK - SERVER WAGON SYSTEM (VORP READY)
 --========================================================--
 
 local data = LumberServer.GetData()
+
+-- VORP Core + Inventory
+local VORPcore = exports.vorp_core:getCore()
+local VORPInv   = exports.vorp_inventory:vorp_inventoryApi()
 
 --========================================================--
 --  WAGON REGISTRY
@@ -42,7 +46,7 @@ RegisterNetEvent("jims-lumberjack:spawnWagon", function(wagonType)
     end
 
     -- Spawn position (from business data)
-    local spawn = data.office.wagonSpawn
+    local spawn = data.office and data.office.wagonSpawn
     if not spawn then
         print("^1[ERROR]^0 No wagon spawn location defined.")
         return
@@ -91,33 +95,29 @@ RegisterNetEvent("jims-lumberjack:loadWagon", function(itemType, wagonNet)
     local def = WagonTypes[wagon.type]
     if not def then return end
 
-    -- Validate item type
+    -- Validate item type vs wagon definition
     if (itemType == "logs" and def.item ~= "lumber") or
        (itemType == "sap" and def.item ~= "refined_sap") then
         print(("^1[WARN]^0 Player %s attempted to load wrong item type into wagon"):format(src))
+        VORPcore.NotifyRightTip(src, "You cannot load that into this wagon.", 3000)
         return
     end
 
     -- Check capacity
     if wagon.cargo >= def.capacity then
-        TriggerClientEvent("chat:addMessage", src, {
-            color = {255, 50, 50},
-            args = {"Lumber Co.", "This wagon is full."}
-        })
+        VORPcore.NotifyRightTip(src, "This wagon is full.", 3000)
         return
     end
 
-    -- Check player inventory
-    if not exports.inventory:HasItem(src, def.item, 1) then
-        TriggerClientEvent("chat:addMessage", src, {
-            color = {255, 50, 50},
-            args = {"Lumber Co.", "You don't have the required item."}
-        })
+    -- Check player inventory (VORP)
+    local count = VORPInv.getItemCount(src, def.item)
+    if not count or count < 1 then
+        VORPcore.NotifyRightTip(src, "You don't have the required item.", 3000)
         return
     end
 
-    -- Remove from player
-    exports.inventory:RemoveItem(src, def.item, 1)
+    -- Remove from player (VORP)
+    VORPInv.subItem(src, def.item, 1)
 
     -- Add to wagon
     wagon.cargo = wagon.cargo + 1
@@ -145,5 +145,10 @@ end
 function LumberWagons.Clear(wagonNet)
     Wagons[wagonNet] = nil
 end
+
+-- Export for other modules (fixes GetWagonModule error)
+exports('GetWagonModule', function()
+    return LumberWagons
+end)
 
 return LumberWagons

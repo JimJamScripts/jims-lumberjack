@@ -99,15 +99,17 @@ function Utils.Distance(a, b)
 end
 
 --========================================================--
---  GET PLAYER IDENTIFIER (SERVER)
+--  GET PLAYER IDENTIFIER (SERVER) — UPDATED FOR VORP
 --========================================================--
 function Utils.GetIdentifier(src)
-    for _, id in ipairs(GetPlayerIdentifiers(src)) do
-        if id:sub(1, 8) == "license:" then
-            return id
-        end
-    end
-    return nil
+    local VORPcore = exports.vorp_core:getCore()
+    local user = VORPcore.getUser(src)
+    if not user then return nil end
+
+    local char = user.getUsedCharacter()
+    if not char then return nil end
+
+    return char.charIdentifier
 end
 
 --========================================================--

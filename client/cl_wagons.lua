@@ -82,27 +82,32 @@ local function LoadIntoWagon(itemType)
 end
 
 --========================================================--
+--  CLIENT PERMISSION CHECK
+--========================================================--
+local function HasAccess(permission)
+    return Permissions:HasAccess(GetLumberRank(), permission)
+end
+
+--========================================================--
 --  MAIN INTERACTION LOOP
 --========================================================--
 CreateThread(function()
     while true do
         Wait(0)
 
-        if not Permissions:HasAccess(GetLumberRank(), "Wagons") then
+        if not HasAccess("Wagons") then
             Wait(1000)
             goto continue
         end
 
         local wagon = GetNearestWagon()
         if wagon then
-            -- Draw prompt
             SetTextScale(0.35, 0.35)
             SetTextColor(255, 255, 255, 215)
             SetTextCentre(true)
             DisplayText(CreateVarString(10, "LITERAL_STRING", "Press [E] to Load Wagon"), 0.5, 0.88)
 
             if IsControlJustPressed(0, 0xCEFD9220) then -- E
-                -- Open small menu
                 OpenLumberUI("wagon", {
                     wagonNet = NetworkGetNetworkIdFromEntity(wagon)
                 })

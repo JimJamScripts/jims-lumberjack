@@ -52,13 +52,26 @@ RegisterNUICallback("shopAction", function(data, cb)
 end)
 
 --========================================================--
+--  CLIENT PERMISSION CHECK
+--========================================================--
+local function CanUseShopfront()
+    -- Civilians allowed?
+    if Config.Shopfront.AllowCiviliansToBuy and GetLumberRank() == 0 then
+        return true
+    end
+
+    -- Otherwise, must have ShopfrontManage permission
+    return Permissions:HasAccess(GetLumberRank(), "ShopfrontManage")
+end
+
+--========================================================--
 --  MAIN INTERACTION LOOP
 --========================================================--
 CreateThread(function()
     while true do
         Wait(0)
 
-        if not Config.Shopfront.AllowCiviliansToBuy and GetLumberRank() == 0 then
+        if not CanUseShopfront() then
             Wait(1000)
             goto continue
         end

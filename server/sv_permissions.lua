@@ -1,68 +1,56 @@
 --========================================================--
---  JIMS LUMBERJACK - SERVER PERMISSION SYSTEM
+--  JIMS LUMBERJACK - SERVER PERMISSIONS (VORP READY)
 --========================================================--
 
+local PermissionsConfig = require("server.sv_permissions_config")
+local VORPcore = exports.vorp_core:getCore()
+
+Permissions = {}
+
 --========================================================--
---  CHECK PERMISSION
+--  GET PLAYER RANK (VORP CHARACTER)
 --========================================================--
-local function HasPermission(src, permission)
-    local rank = LumberServer.GetRank(src)
-    return Permissions:HasAccess(rank, permission)
+local function GetRank(src)
+    local user = VORPcore.getUser(src)
+    if not user then return PermissionsConfig.Ranks.CIVILIAN end
+
+    local char = user.getUsedCharacter()
+    if not char then return PermissionsConfig.Ranks.CIVILIAN end
+
+    local identifier = char.charIdentifier
+    if not identifier then return PermissionsConfig.Ranks.CIVILIAN end
+
+    local employees = LumberServer.GetData().employees
+    local emp = employees[identifier]
+
+    return emp and emp.rank or PermissionsConfig.Ranks.CIVILIAN
 end
 
 --========================================================--
---  EXPORT FOR OTHER SERVER FILES
+--  CHECK ACCESS
 --========================================================--
-LumberPerms = {}
-
-function LumberPerms.Check(src, permission)
-    return HasPermission(src, permission)
+function Permissions.Require(src, permission)
+    local rank = GetRank(src)
+    return PermissionsConfig:HasAccess(rank, permission)
 end
 
 --========================================================--
---  DENY HELPER
+--  DIRECT ACCESS CHECK
 --========================================================--
-local function Deny(src, reason)
-    reason = reason or "You do not have permission to do that."
-    TriggerClientEvent("chat:addMessage", src, {
-        color = {255, 50, 50},
-        multiline = false,
-        args = {"Lumber Co.", reason}
-    })
+function Permissions.Has(src, permission)
+    local rank = GetRank(src)
+    return PermissionsConfig:HasAccess(rank, permission)
 end
 
 --========================================================--
---  PERMISSION VALIDATION WRAPPER
+--  GET RANK NAME
 --========================================================--
-function LumberPerms.Require(src, permission)
-    if not HasPermission(src, permission) then
-        Deny(src)
-        return false
-    end
-    return true
+function Permissions.GetRankName(src)
+    local rank = GetRank(src)
+    return PermissionsConfig:GetRankName(rank)
 end
 
 --========================================================--
---  LOG PERMISSION VIOLATIONS
+--  EXPORT MODULE
 --========================================================--
-local function LogViolation(src, permission)
-    local name = GetPlayerName(src) or "Unknown"
-    print(("^1[JIMS-LUMBERJACK] PERMISSION VIOLATION:^0 %s attempted %s"):format(name, permission))
-end
-
---========================================================--
---  SECURE SERVER EVENT WRAPPER
---========================================================--
-function LumberPerms.SecureEvent(src, permission)
-    if not HasPermission(src, permission) then
-        LogViolation(src, permission)
-        Deny(src)
-        return false
-    end
-    return true
-end
-
---========================================================--
---  RETURN MODULE
---========================================================--
-return LumberPerms
+return Permissions

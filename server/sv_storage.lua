@@ -1,8 +1,12 @@
 --========================================================--
---  JIMS LUMBERJACK - SERVER STORAGE SYSTEM
+--  JIMS LUMBERJACK - SERVER STORAGE SYSTEM (VORP READY)
 --========================================================--
 
 local data = LumberServer.GetData()
+
+-- VORP Core + Inventory
+local VORPcore = exports.vorp_core:getCore()
+local VORPInv   = exports.vorp_inventory:vorp_inventoryApi()
 
 --========================================================--
 --  SAVE + SYNC HELPERS
@@ -29,7 +33,7 @@ RegisterNetEvent("jims-lumberjack:openStorage", function(storageId)
     local src = source
 
     -- Permission check
-    if not LumberPerms.Require(src, "StorageAccess") then return end
+    if not Permissions.Require(src, "StorageAccess") then return end
 
     -- Validate storage
     if not StorageExists(storageId) then
@@ -61,7 +65,7 @@ RegisterNetEvent("jims-lumberjack:storageAction", function(dataIn)
     local amount = tonumber(dataIn.amount) or 0
 
     -- Permission check
-    if not LumberPerms.Require(src, "StorageAccess") then return end
+    if not Permissions.Require(src, "StorageAccess") then return end
 
     -- Validate storage
     if not StorageExists(storageId) then
@@ -78,12 +82,10 @@ RegisterNetEvent("jims-lumberjack:storageAction", function(dataIn)
     if action == "deposit" then
         if amount <= 0 then return end
 
-        -- Check player has item
-        if not exports.inventory:HasItem(src, item, amount) then
-            TriggerClientEvent("chat:addMessage", src, {
-                color = {255, 50, 50},
-                args = {"Lumber Co.", "You don't have enough of that item."}
-            })
+        -- Check player has item (VORP)
+        local count = VORPInv.getItemCount(src, item)
+        if not count or count < amount then
+            VORPcore.NotifyRightTip(src, "You don't have enough of that item.", 3000)
             return
         end
 
@@ -94,15 +96,12 @@ RegisterNetEvent("jims-lumberjack:storageAction", function(dataIn)
         end
 
         if total + amount > 2000 then
-            TriggerClientEvent("chat:addMessage", src, {
-                color = {255, 50, 50},
-                args = {"Lumber Co.", "Storage is full."}
-            })
+            VORPcore.NotifyRightTip(src, "Storage is full.", 3000)
             return
         end
 
         -- Remove from player
-        exports.inventory:RemoveItem(src, item, amount)
+        VORPInv.subItem(src, item, amount)
 
         -- Add to storage
         storage.inventory[item] = (storage.inventory[item] or 0) + amount
@@ -125,10 +124,7 @@ RegisterNetEvent("jims-lumberjack:storageAction", function(dataIn)
 
         local stored = storage.inventory[item] or 0
         if stored < amount then
-            TriggerClientEvent("chat:addMessage", src, {
-                color = {255, 50, 50},
-                args = {"Lumber Co.", "Not enough items in storage."}
-            })
+            VORPcore.NotifyRightTip(src, "Not enough items in storage.", 3000)
             return
         end
 
@@ -139,7 +135,7 @@ RegisterNetEvent("jims-lumberjack:storageAction", function(dataIn)
         end
 
         -- Give to player
-        exports.inventory:AddItem(src, item, amount)
+        VORPInv.addItem(src, item, amount)
 
         SaveStorage()
 
